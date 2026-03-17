@@ -1,80 +1,59 @@
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020761.Models;
-//using SV22T1020761.BusinessLayers;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class EmployeeController : Controller
     {
-        // Hiển thị danh sách nhân viên
-        public IActionResult Index(string searchValue = "", int page = 1, int pageSize = 10)
+        public IActionResult Index()
         {
             return View();
         }
 
-        // Thêm mới nhân viên
         public IActionResult Create()
         {
-            return View(new Employee());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Employee model)
-        {
             return View();
         }
 
-        // Chỉnh sửa thông tin nhân viên theo ID
+        [HttpPost]
+        public IActionResult Create(Employee employee)
+        {
+            if (ModelState.IsValid)
+            {
+                // Add employee to database
+                return RedirectToAction("Index");
+            }
+            return View(employee);
+        }
+
         public IActionResult Edit(int id)
         {
-            return View(new Employee());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Employee model)
-        {
+            // Get employee by id
             return View();
         }
 
-        // Xóa nhân viên theo ID
+        [HttpPost]
+        public IActionResult Edit(Employee employee)
+        {
+            if (ModelState.IsValid)
+            {
+                // Update employee in database
+                return RedirectToAction("Index");
+            }
+            return View(employee);
+        }
+
         public IActionResult Delete(int id)
         {
+            // Get employee by id
             return View();
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
-            return View();
-        }
-
-        // Thay đổi mật khẩu cho nhân viên theo ID
-        public IActionResult ChangePassword(int id)
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ChangePassword(int id, string newPassword)
-        {
-            return View();
-        }
-
-        // Thay đổi vai trò (role) của nhân viên theo ID
-        public IActionResult ChangeRole(int id)
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ChangeRole(int id, string newRole)
-        {
-            return View();
+            // Delete employee from database
+            return RedirectToAction("Index");
         }
     }
 }

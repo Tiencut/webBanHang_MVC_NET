@@ -1,4 +1,5 @@
-﻿@{
+﻿@model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Partner.Customer>
+@{
     ViewBag.Title = "Quản lý Khách hàng";
 }
 @section PageToolBar {
@@ -9,11 +10,9 @@
 }
 <div class="card mb-3">
     <div class="card-body">
-        <form id="formSearch">
+        <form id="formSearch" method="get" action="~/Customer/Index">
             <div class="input-group">
-                <input type="text"
-                       class="form-control"
-                       placeholder="Tên khách hàng..." autofocus />
+                <input type="text" name="searchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Tên khách hàng..." autofocus />
                 <button class="btn btn-info d-flex align-items-center">
                     <i class="bi bi-search me-1"></i>
                 </button>
@@ -21,11 +20,9 @@
         </form>
     </div>
 </div>
-
 <div class="mb-2 text-muted">
-    Danh sách này có <strong>25</strong> khách hàng
+    Danh sách này có <strong>@Model?.RowCount ?? 0</strong> khách hàng
 </div>
-
 <div class="card">
     <div class="card-body p-1">
         <table class="table table-bordered table-hover mb-0">
@@ -42,47 +39,55 @@
                 </tr>
             </thead>
             <tbody>
-                @for (int i = 1; i <= 10; i++)
+                @if (Model?.DataItems != null && Model.DataItems.Count > 0)
+                {
+                    foreach (var item in Model.DataItems)
+                    {
+                        <tr>
+                            <td>@item.CustomerName</td>
+                            <td>@item.ContactName</td>
+                            <td>@item.Phone</td>
+                            <td>@item.Email</td>
+                            <td>@item.Address</td>
+                            <td>@item.Province</td>
+                            <td class="text-center">
+                                @if (item.IsLocked ?? false)
+                                {
+                                    <span class="badge bg-danger">Khóa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                            </td>
+                            <td class="text-center text-nowrap">
+                                <a href="~/Customer/Edit/@item.CustomerID" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="~/Customer/Delete/@item.CustomerID" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td>Nguyễn Văn A</td>
-                        <td>A Trading</td>
-                        <td>0912345678</td>
-                        <td>a@gmail.com</td>
-                        <td>456 Nguyễn Huệ</td>
-                        <td>Hà Nội</td>
-                        <td class="text-center">
-                            <span class="badge bg-success">Hoạt động</span>
-                        </td>
-                        <td class="text-center text-nowrap">
-                            <a href="~/Customer/Edit/123" class="btn btn-sm btn-primary">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="~/Customer/Delete/123" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                            <a href="~/Customer/ChangePassword/123" class="btn btn-sm btn-warning ms-2">
-                                <i class="bi bi-key"></i>
-                            </a>
-                        </td>
+                        <td colspan="8" class="text-center">Không có dữ liệu</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-
-    <div class="card-footer">
-        <!-- Pagination -->
-        <ul class="pagination justify-content-center">
-            <li class="page-item active">
-                <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="#">3</a>
-            </li>
-        </ul>
-    </div>
 </div>
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-3">
+        @for (int i = 1; i <= Model?.PageCount; i++)
+        {
+            <li class="page-item @(i == Model.Page ? "active" : "")">
+                <a class="page-link" href="?page=@i&searchValue=@Context.Request.Query["searchValue"]">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

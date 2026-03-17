@@ -1,73 +1,77 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SV22T1020761.Models;
-//using SV22T1020761.BusinessLayers;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
+using SV22T1020761.Models.Partner;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class CustomerController : Controller
     {
-        // Hiển thị danh sách khách hàng dưới dạng phân trang, hỗ trợ tìm kiếm theo tên, và điều hướng đến các chức năng liên quan (như chỉnh sửa, xóa)
-        public IActionResult Index(string searchValue = "", int page = 1, int pageSize = 10)
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
         {
-            return View();
+            var input = new PaginationSearchInput
+            {
+                SearchValue = searchValue,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var model = CustomerService.ListCustomers(input);
+            return View(model);
         }
 
-        // Thêm mới khách hàng
         public IActionResult Create()
         {
-            return View(new Customer());
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Customer model)
+        public IActionResult Create(Customer customer)
         {
-            // Return view (stay on form) after POST per request
-            return View(model);
-
-            // If you prefer validation then return view on error:
-            // if (!ModelState.IsValid) return View(model);
-            // return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                CustomerService.AddCustomer(customer);
+                return RedirectToAction("Index");
+            }
+            return View(customer);
         }
 
-        // Chỉnh sửa thông tin khách hàng theo ID
         public IActionResult Edit(int id)
         {
-            return View(new Customer());
+            var customer = CustomerService.GetCustomer(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Customer model)
+        public IActionResult Edit(Customer customer)
         {
-            if (!ModelState.IsValid) return View(model);
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                CustomerService.UpdateCustomer(customer);
+                return RedirectToAction("Index");
+            }
+            return View(customer);
         }
 
-        // Xóa khách hàng theo ID
         public IActionResult Delete(int id)
         {
-            return View();
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        // Thay đổi mật khẩu cho khách hàng theo ID
-        public IActionResult ChangePassword(int id)
-        {
-            return View();
+            var customer = CustomerService.GetCustomer(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ChangePassword(int id, string newPassword)
+        public IActionResult DeleteConfirmed(int id)
         {
-            return RedirectToAction(nameof(Index));
+            CustomerService.DeleteCustomer(id);
+            return RedirectToAction("Index");
         }
     }
 }

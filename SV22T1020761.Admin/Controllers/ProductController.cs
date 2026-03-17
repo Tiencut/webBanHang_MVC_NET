@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SV22T1020761.Models;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
+using SV22T1020761.Models.Catalog;
 
 namespace SV22T1020761.Admin.Controllers
 {
@@ -8,9 +10,17 @@ namespace SV22T1020761.Admin.Controllers
         // =====================================================
         // Product/Index
         // =====================================================
-        public IActionResult Index()
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
         {
-            return View();
+            var input = new PaginationSearchInput
+            {
+                SearchValue = searchValue,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var model = CatalogDataService.ListProducts(input);
+            return View(model);
         }
 
         // =====================================================
@@ -18,16 +28,18 @@ namespace SV22T1020761.Admin.Controllers
         // =====================================================
         public IActionResult Create()
         {
-            return View(new Product());
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Product model)
+        public IActionResult Create(Product product)
         {
-            if (!ModelState.IsValid) return View(model);
-            // TODO: lưu product
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                CatalogDataService.AddProduct(product);
+                return RedirectToAction("Index");
+            }
+            return View(product);
         }
 
         // =====================================================
@@ -35,16 +47,23 @@ namespace SV22T1020761.Admin.Controllers
         // =====================================================
         public IActionResult Edit(int id)
         {
-            return View(new Product());
+            var product = CatalogDataService.GetProduct(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Product model)
+        public IActionResult Edit(Product product)
         {
-            if (!ModelState.IsValid) return View(model);
-            // TODO: cập nhật product
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                CatalogDataService.UpdateProduct(product);
+                return RedirectToAction("Index");
+            }
+            return View(product);
         }
 
         // =====================================================
@@ -52,14 +71,19 @@ namespace SV22T1020761.Admin.Controllers
         // =====================================================
         public IActionResult Delete(int id)
         {
-            return View();
+            var product = CatalogDataService.GetProduct(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
-            return View();
+            CatalogDataService.DeleteProduct(id);
+            return RedirectToAction("Index");
         }
 
         // =====================================================

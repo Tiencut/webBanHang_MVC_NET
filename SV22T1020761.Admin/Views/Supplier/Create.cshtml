@@ -1,0 +1,24 @@
+@model SV22T1020761.Models.Supplier
+@{
+    ViewBag.Title = "Thêm Nhà cung cấp";
+}
+<h2>Thêm Nhà cung cấp</h2>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="SupplierName">Tên Nhà cung cấp</label>
+        <input asp-for="SupplierName" class="form-control" />
+        <span asp-validation-for="SupplierName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label for="ContactName">Liên hệ</label>
+        <input asp-for="ContactName" class="form-control" />
+        <span asp-validation-for="ContactName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label for="Address">Địa chỉ</label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

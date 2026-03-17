@@ -1,61 +1,77 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SV22T1020761.Models;
-//using SV22T1020761.BusinessLayers;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
+using SV22T1020761.Models.Catalog;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class CategoryController : Controller
     {
-        // Hiển thị danh sách danh mục sản phẩm
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="searchValue"></param>
-        /// <param name="page"></param> 
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
-        public IActionResult Index(string searchValue = "", int page = 1, int pageSize = 10)
-        { 
-            return View();
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
+        {
+            var input = new PaginationSearchInput
+            {
+                SearchValue = searchValue,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var model = CatalogDataService.ListCategories(input);
+            return View(model);
         }
 
-        // Thêm mới danh mục
         public IActionResult Create()
         {
-            return View(new Category());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Category model)
-        {
             return View();
         }
 
-        // Chỉnh sửa danh mục theo ID
+        [HttpPost]
+        public IActionResult Create(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                CatalogDataService.AddCategory(category);
+                return RedirectToAction("Index");
+            }
+            return View(category);
+        }
+
         public IActionResult Edit(int id)
         {
-            return View(new Category());
+            var category = CatalogDataService.GetCategory(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return View(category);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Category model)
+        public IActionResult Edit(Category category)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                CatalogDataService.UpdateCategory(category);
+                return RedirectToAction("Index");
+            }
+            return View(category);
         }
 
-        // Xóa danh mục theo ID
         public IActionResult Delete(int id)
         {
-            return View();
+            var category = CatalogDataService.GetCategory(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return View(category);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
-            return View();
+            CatalogDataService.DeleteCategory(id);
+            return RedirectToAction("Index");
         }
     }
 }

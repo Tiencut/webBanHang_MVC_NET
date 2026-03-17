@@ -2,21 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SV22T1020761.Models
 {
-    /// <summary>
-    /// Model cho đăng nhập
-    /// </summary>
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]
-        [Display(Name = "Tên đăng nhập")]
-        public string UserName { get; set; } = "";
+        [Required(ErrorMessage = "T�n ��ng nh?p l� b?t bu?c")]
+        public string UserName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+        [Required(ErrorMessage = "M?t kh?u l� b?t bu?c")]
         [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu")]
-        public string Password { get; set; } = "";
+        public string Password { get; set; } = string.Empty;
 
-        [Display(Name = "Ghi nhớ đăng nhập")]
-        public bool RememberMe { get; set; }
+        public bool RememberMe { get; set; } = false;
     }
 }

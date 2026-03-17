@@ -19,6 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SV22T1020761.BusinessLayers
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{7E865606-F66E-4DDC-AAE4-4692085A5A3B}"
 	ProjectSection(SolutionItems) = preProject
+		C:\Users\tient\Downloads\datalayer.md = C:\Users\tient\Downloads\datalayer.md
 		..\LiteCommerce\schema.sql = ..\LiteCommerce\schema.sql
 	EndProjectSection
 EndProject

@@ -1,54 +1,59 @@
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020761.Models;
-//using SV22T1020761.BusinessLayers;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class ShipperController : Controller
     {
-        // Hiển thị danh sách người giao hàng (shipper)
-        public IActionResult Index(string searchValue = "", int page = 1, int pageSize = 10)
+        public IActionResult Index()
         {
             return View();
         }
 
-        // Thêm mới shipper
         public IActionResult Create()
         {
-            return View(new Shipper());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Shipper model)
-        {
             return View();
         }
 
-        // Chỉnh sửa thông tin shipper theo ID
+        [HttpPost]
+        public IActionResult Create(Shipper shipper)
+        {
+            if (ModelState.IsValid)
+            {
+                // Add shipper to database
+                return RedirectToAction("Index");
+            }
+            return View(shipper);
+        }
+
         public IActionResult Edit(int id)
         {
-            return View(new Shipper());
+            // Get shipper by id
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Shipper model)
+        public IActionResult Edit(Shipper shipper)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                // Update shipper in database
+                return RedirectToAction("Index");
+            }
+            return View(shipper);
         }
 
-        // Xóa shipper theo ID
         public IActionResult Delete(int id)
         {
+            // Get shipper by id
             return View();
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
-            return View();
+            // Delete shipper from database
+            return RedirectToAction("Index");
         }
     }
 }

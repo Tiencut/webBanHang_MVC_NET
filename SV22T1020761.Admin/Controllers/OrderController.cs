@@ -1,119 +1,77 @@
 using Microsoft.AspNetCore.Mvc;
-using SV22T1020761.Models;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
+using SV22T1020761.Models.Sales;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class OrderController : Controller
     {
-        // =====================================================
-        // Order/Index
-        // =====================================================
-        public IActionResult Index()
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
         {
-            return View();
+            var input = new PaginationSearchInput
+            {
+                SearchValue = searchValue,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var model = SalesDataService.ListOrders(input);
+            return View(model);
         }
 
-        // =====================================================
-        // Order/Search
-        // =====================================================
-        public IActionResult Search()
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Create
-        // =====================================================
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Order model)
+        public IActionResult Create(Order order)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                SalesDataService.AddOrder(order);
+                return RedirectToAction("Index");
+            }
+            return View(order);
         }
 
-        // =====================================================
-        // Order/Detail/{id}
-        // =====================================================
-        public IActionResult Detail(int id)
+        public IActionResult Edit(int id)
         {
-            return View();
+            var order = SalesDataService.GetOrder(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
         }
 
-        // =====================================================
-        // Order/EditCartItem/{id}?productId={productId}
-        // =====================================================
-        public IActionResult EditCartItem(int id, int productId)
+        [HttpPost]
+        public IActionResult Edit(Order order)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                SalesDataService.UpdateOrder(order);
+                return RedirectToAction("Index");
+            }
+            return View(order);
         }
 
-        // =====================================================
-        // Order/DeleteCartItem/{id}?productId={productId}
-        // =====================================================
-        public IActionResult DeleteCartItem(int id, int productId)
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/ClearCart
-        // =====================================================
-        public IActionResult ClearCart()
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Accept/{id}
-        // =====================================================
-        public IActionResult Accept(int id)
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Shipping/{id}
-        // =====================================================
-        public IActionResult Shipping(int id)
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Finish/{id}
-        // =====================================================
-        public IActionResult Finish(int id)
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Reject/{id}
-        // =====================================================
-        public IActionResult Reject(int id)
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Cancel/{id}
-        // =====================================================
-        public IActionResult Cancel(int id)
-        {
-            return View();
-        }
-
-        // =====================================================
-        // Order/Delete/{id}
-        // =====================================================
         public IActionResult Delete(int id)
         {
-            return View();
+            var order = SalesDataService.GetOrder(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            SalesDataService.DeleteOrder(id);
+            return RedirectToAction("Index");
         }
     }
 }
