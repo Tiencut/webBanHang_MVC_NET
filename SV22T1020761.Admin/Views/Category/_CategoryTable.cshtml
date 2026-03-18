@@ -1,0 +1,25 @@
+@model PagedResult<SV22T1020761.Models.Category>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model.DataItems)
+        {
+            <tr>
+                <td>@category.CategoryID</td>
+                <td>@category.CategoryName</td>
+                <td>@category.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <span>Page @Model.Page of @Model.PageCount</span>
+</div>

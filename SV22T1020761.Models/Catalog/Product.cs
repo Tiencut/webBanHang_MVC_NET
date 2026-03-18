@@ -41,5 +41,9 @@
         /// Mặt hàng hiện có đang được bán hay không?
         /// </summary>
         public bool IsSelling { get; set; }
+        /// <summary>
+        /// Số lượng tồn
+        /// </summary>
+        public int Quantity { get; set; }
     }
 }

@@ -49,5 +49,35 @@
         /// Trạng thái hiện tại của đơn hàng
         /// </summary>
         public OrderStatusEnum Status { get; set; }
+        /// <summary>
+        /// Tên khách hàng
+        /// </summary>
+        public string? CustomerName { get; set; }
+        /// <summary>
+        /// Thời điểm đặt hàng (thời điểm tạo đơn hàng)
+        /// </summary>
+        public DateTime? OrderDate { get; set; }
+        /// <summary>
+        /// Tổng tiền đơn hàng
+        /// </summary>
+        public decimal? TotalAmount { get; set; }
+    }
+
+    public class OrderViewModel
+    {
+        public int OrderID { get; set; }
+        public int? CustomerID { get; set; }
+        public string? CustomerName { get; set; }
+        public DateTime OrderTime { get; set; }
+        public string? DeliveryProvince { get; set; }
+        public string? DeliveryAddress { get; set; }
+        public int? EmployeeID { get; set; }
+        public DateTime? AcceptTime { get; set; }
+        public int? ShipperID { get; set; }
+        public DateTime? ShippedTime { get; set; }
+        public DateTime? FinishedTime { get; set; }
+        public OrderStatusEnum Status { get; set; }
+        public DateTime? OrderDate { get; set; }
+        public decimal? TotalAmount { get; set; }
     }
 }

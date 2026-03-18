@@ -69,6 +69,6 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
     ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' not found.");
 
 // Initialize Business Layer Configuration
-//LiteCommerce.BusinessLayers.Configuration.Initialize(connectionString);
+SV22T1020761.BusinessLayers.Configuration.Initialize(connectionString);
 
 app.Run();

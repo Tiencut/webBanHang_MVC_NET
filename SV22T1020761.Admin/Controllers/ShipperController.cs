@@ -1,13 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
-using SV22T1020761.Models;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
+using SV22T1020761.Models.Partner;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class ShipperController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
         {
-            return View();
+            var input = new PaginationSearchInput
+            {
+                SearchValue = searchValue,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var pagedResult = PartnerDataService.ListShippers(input);
+            var model = new PagedResult<SV22T1020761.Models.Shipper>
+            {
+                Page = pagedResult.Page,
+                PageSize = pagedResult.PageSize,
+                RowCount = pagedResult.RowCount,
+                DataItems = pagedResult.DataItems.Select(shipper => new SV22T1020761.Models.Shipper
+                {
+                    ShipperID = shipper.ShipperID,
+                    ShipperName = shipper.ShipperName,
+                    Phone = shipper.Phone
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         public IActionResult Create()
@@ -20,7 +43,7 @@ namespace SV22T1020761.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Add shipper to database
+                PartnerDataService.AddShipper(shipper);
                 return RedirectToAction("Index");
             }
             return View(shipper);
@@ -28,8 +51,12 @@ namespace SV22T1020761.Admin.Controllers
 
         public IActionResult Edit(int id)
         {
-            // Get shipper by id
-            return View();
+            var shipper = PartnerDataService.GetShipper(id);
+            if (shipper == null)
+            {
+                return NotFound();
+            }
+            return View(shipper);
         }
 
         [HttpPost]
@@ -37,7 +64,7 @@ namespace SV22T1020761.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Update shipper in database
+                PartnerDataService.UpdateShipper(shipper);
                 return RedirectToAction("Index");
             }
             return View(shipper);
@@ -45,14 +72,18 @@ namespace SV22T1020761.Admin.Controllers
 
         public IActionResult Delete(int id)
         {
-            // Get shipper by id
-            return View();
+            var shipper = PartnerDataService.GetShipper(id);
+            if (shipper == null)
+            {
+                return NotFound();
+            }
+            return View(shipper);
         }
 
         [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
-            // Delete shipper from database
+            PartnerDataService.DeleteShipper(id);
             return RedirectToAction("Index");
         }
     }

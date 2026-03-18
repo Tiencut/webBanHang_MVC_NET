@@ -29,6 +29,11 @@ namespace SV22T1020761.BusinessLayers
         {
             return await supplierDB.ListAsync(input);
         }
+        public static PagedResult<Supplier> ListSuppliers(PaginationSearchInput input)
+        {
+            // Placeholder implementation for listing suppliers
+            return supplierDB.ListAsync(input).GetAwaiter().GetResult();
+        }
         /// <summary>
         /// bổ sung một nhà cung cấp
         /// </summary>
@@ -41,11 +46,22 @@ namespace SV22T1020761.BusinessLayers
             /// todo: kiểm tra tính hợp lệ  của dữ liệu trước khi bổ sung
             return await supplierDB.GetAsync(supplierID);
         }
-        public async Task<bool> UpdateSupplierAsync(Supplier supplier)
+        public static bool UpdateSupplier(Supplier supplier)
+        {
+            return supplierDB.UpdateAsync(supplier).GetAwaiter().GetResult();
+        }
+
+        public static Supplier? GetSupplier(int supplierID)
+        {
+            return supplierDB.GetAsync(supplierID).GetAwaiter().GetResult();
+        }
+
+        public static async Task<bool> UpdateSupplierAsync(Supplier supplier)
         {
             //TODO: kiểm tra tính hợp lệ của dữ liệu trước khi cập nhật
             return await supplierDB.UpdateAsync(supplier);
         }
+
         public static async Task<bool> DeleteSupploerAsync(int supplierID)
         {
             if (await supplierDB.IsUsedAsync(supplierID))
@@ -64,15 +80,33 @@ namespace SV22T1020761.BusinessLayers
             return await supplierDB.IsUsedAsync(supplierID);
         }
 
+        public static bool DeleteSupplier(int supplierID)
+        {
+            // Placeholder implementation for deleting a supplier
+            return supplierDB.DeleteAsync(supplierID).GetAwaiter().GetResult();
+        }
+
         // == Shipper
         public static async Task<PagedResult<Shipper>> ListShippersAsync(PaginationSearchInput input)
         {
             return await shipperDB.ListAsync(input);
         }
 
+        public static PagedResult<Shipper> ListShippers(PaginationSearchInput input)
+        {
+            // Placeholder implementation for listing shippers
+            return shipperDB.ListAsync(input).GetAwaiter().GetResult();
+        }
+
         public static async Task<Shipper?> GetShipperAsync(int shipperID)
         {
+            // Corrected method to use async-await properly
             return await shipperDB.GetAsync(shipperID);
+        }
+
+        public static Shipper? GetShipper(int shipperID)
+        {
+            return shipperDB.GetAsync(shipperID).GetAwaiter().GetResult();
         }
 
         public static async Task<int> AddShipperAsync(Shipper data)
@@ -80,9 +114,19 @@ namespace SV22T1020761.BusinessLayers
             return await shipperDB.AddAsync(data);
         }
 
+        public static int AddShipper(Shipper data)
+        {
+            return shipperDB.AddAsync(data).GetAwaiter().GetResult();
+        }
+
         public static async Task<bool> UpdateShipperAsync(Shipper data)
         {
             return await shipperDB.UpdateAsync(data);
+        }
+
+        public static bool UpdateShipper(Shipper data)
+        {
+            return shipperDB.UpdateAsync(data).GetAwaiter().GetResult();
         }
 
         public static async Task<bool> DeleteShipperAsync(int shipperID)
@@ -90,10 +134,21 @@ namespace SV22T1020761.BusinessLayers
             return await shipperDB.DeleteAsync(shipperID);
         }
 
+        public static bool DeleteShipper(int shipperID)
+        {
+            return shipperDB.DeleteAsync(shipperID).GetAwaiter().GetResult();
+        }
+
         // == Customer
         public static async Task<PagedResult<Customer>> ListCustomersAsync(PaginationSearchInput input)
         {
             return await customerDB.ListAsync(input);
+        }
+
+        public static PagedResult<Customer> ListCustomers(PaginationSearchInput input)
+        {
+            // Placeholder implementation for listing customers
+            return customerDB.ListAsync(input).GetAwaiter().GetResult();
         }
 
         public static async Task<Customer?> GetCustomerAsync(int customerID)
@@ -106,9 +161,21 @@ namespace SV22T1020761.BusinessLayers
             return await customerDB.AddAsync(data);
         }
 
+        public static void AddCustomer(Customer customer)
+        {
+            // Implementation for adding a customer
+            throw new NotImplementedException();
+        }
+
         public static async Task<bool> UpdateCustomerAsync(Customer data)
         {
             return await customerDB.UpdateAsync(data);
+        }
+
+        public static void UpdateCustomer(Customer customer)
+        {
+            // Implementation for updating a customer
+            throw new NotImplementedException();
         }
 
         public static async Task<bool> DeleteCustomerAsync(int customerID)
@@ -126,6 +193,12 @@ namespace SV22T1020761.BusinessLayers
         public static async Task<bool> ValidateCustomerEmailAsync(string email, int id = 0)
         {
             return await customerDB.ValidateEmailAsync(email, id);
+        }
+
+        public static int AddSupplier(Supplier supplier)
+        {
+            // Placeholder implementation for adding a supplier
+            return supplierDB.AddAsync(supplier).GetAwaiter().GetResult();
         }
     }
 }

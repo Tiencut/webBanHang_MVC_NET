@@ -91,3 +91,34 @@
         }
     </ul>
 </nav>
+
+<script>
+    $(document).ready(function () {
+        $("#searchForm").on("submit", function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "@Url.Action("Search", "Customer")",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (result) {
+                    $("#customerTableContainer").html(result);
+                },
+                error: function () {
+                    alert("An error occurred while processing your request.");
+                }
+            });
+        });
+    });
+</script>
+
+<div>
+    <form id="searchForm">
+        <input type="text" name="SearchValue" placeholder="Search..." />
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<div id="customerTableContainer">
+    @Html.Partial("_CustomerTable", Model)
+</div>

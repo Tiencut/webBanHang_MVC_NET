@@ -1,0 +1,29 @@
+@model PagedResult<SV22T1020761.Models.HR.Employee>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model.DataItems)
+        {
+            <tr>
+                <td>@employee.EmployeeID</td>
+                <td>@employee.FullName</td>
+                <td>@employee.Phone</td>
+                <td>@employee.Email</td>
+                <td>@employee.RoleNames</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <span>Page @Model.Page of @Model.PageCount</span>
+</div>

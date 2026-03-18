@@ -21,5 +21,23 @@ namespace SV22T1020761.BusinessLayers
 
         public static Employee? GetEmployee(int id)
             => _employeeRepo.GetAsync(id).GetAwaiter().GetResult();
+
+        public static void AddEmployee(Employee employee)
+        {
+            // Implementation for adding an employee
+            throw new NotImplementedException();
+        }
+
+        public static void UpdateEmployee(Employee employee)
+        {
+            // Implementation for updating an employee
+            throw new NotImplementedException();
+        }
+
+        public static void DeleteEmployee(int employeeId)
+        {
+            // Implementation for deleting an employee
+            throw new NotImplementedException();
+        }
     }
 }

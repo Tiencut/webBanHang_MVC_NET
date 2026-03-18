@@ -72,3 +72,34 @@
         }
     </ul>
 </nav>
+
+<script>
+    $(document).ready(function () {
+        $("#searchForm").on("submit", function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "@Url.Action("Search", "Category")",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (result) {
+                    $("#categoryTableContainer").html(result);
+                },
+                error: function () {
+                    alert("An error occurred while processing your request.");
+                }
+            });
+        });
+    });
+</script>
+
+<div>
+    <form id="searchForm">
+        <input type="text" name="SearchValue" placeholder="Search..." />
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<div id="categoryTableContainer">
+    @Html.Partial("_CategoryTable", Model)
+</div>

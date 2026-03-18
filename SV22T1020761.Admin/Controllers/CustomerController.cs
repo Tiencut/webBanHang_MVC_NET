@@ -7,16 +7,9 @@ namespace SV22T1020761.Admin.Controllers
 {
     public class CustomerController : Controller
     {
-        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
+        public IActionResult Index(PaginationSearchInput input)
         {
-            var input = new PaginationSearchInput
-            {
-                SearchValue = searchValue,
-                Page = page,
-                PageSize = pageSize
-            };
-
-            var model = CustomerService.ListCustomers(input);
+            var model = PartnerDataService.ListCustomers(input);
             return View(model);
         }
 
@@ -26,11 +19,11 @@ namespace SV22T1020761.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Customer customer)
+        public IActionResult Create(SV22T1020761.Models.Partner.Customer customer)
         {
             if (ModelState.IsValid)
             {
-                CustomerService.AddCustomer(customer);
+                PartnerDataService.AddCustomer(customer);
                 return RedirectToAction("Index");
             }
             return View(customer);
@@ -47,11 +40,11 @@ namespace SV22T1020761.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Customer customer)
+        public IActionResult Edit(SV22T1020761.Models.Partner.Customer customer)
         {
             if (ModelState.IsValid)
             {
-                CustomerService.UpdateCustomer(customer);
+                PartnerDataService.UpdateCustomer(customer);
                 return RedirectToAction("Index");
             }
             return View(customer);
@@ -72,6 +65,14 @@ namespace SV22T1020761.Admin.Controllers
         {
             CustomerService.DeleteCustomer(id);
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Search(PaginationSearchInput input)
+        {
+            ApplicationContext.SetSessionData("CustomerSearchConditions", input);
+            var result = CustomerService.ListCustomers(input);
+            return PartialView("_CustomerTable", result);
         }
     }
 }

@@ -1,13 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SV22T1020761.Models;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
+using SV22T1020761.Models.Partner;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class SupplierController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
         {
-            return View();
+            var input = new PaginationSearchInput
+            {
+                SearchValue = searchValue,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var pagedResult = PartnerDataService.ListSuppliers(input);
+
+            // Map Partner.Supplier to Models.Supplier
+            var mappedResult = new PagedResult<SV22T1020761.Models.Supplier>
+            {
+                Page = pagedResult.Page,
+                PageSize = pagedResult.PageSize,
+                RowCount = pagedResult.RowCount,
+                DataItems = pagedResult.DataItems.Select(s => new SV22T1020761.Models.Supplier
+                {
+                    SupplierID = s.SupplierID,
+                    SupplierName = s.SupplierName,
+                    ContactName = s.ContactName,
+                    Province = s.Province,
+                    Address = s.Address
+                }).ToList()
+            };
+
+            ViewBag.PageNumber = mappedResult.Page;
+            ViewBag.TotalPages = mappedResult.PageCount;
+            return View(mappedResult);
         }
 
         public IActionResult Create()
@@ -20,7 +49,7 @@ namespace SV22T1020761.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Add supplier to database
+                PartnerDataService.AddSupplier(supplier);
                 return RedirectToAction("Index");
             }
             return View(supplier);
@@ -28,8 +57,12 @@ namespace SV22T1020761.Admin.Controllers
 
         public IActionResult Edit(int id)
         {
-            // Get supplier by id
-            return View();
+            var supplier = PartnerDataService.GetSupplier(id);
+            if (supplier == null)
+            {
+                return NotFound();
+            }
+            return View(supplier);
         }
 
         [HttpPost]
@@ -37,7 +70,7 @@ namespace SV22T1020761.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Update supplier in database
+                PartnerDataService.UpdateSupplier(supplier);
                 return RedirectToAction("Index");
             }
             return View(supplier);
@@ -45,15 +78,48 @@ namespace SV22T1020761.Admin.Controllers
 
         public IActionResult Delete(int id)
         {
-            // Get supplier by id
-            return View();
+            var supplier = PartnerDataService.GetSupplier(id);
+            if (supplier == null)
+            {
+                return NotFound();
+            }
+            return View(supplier);
         }
 
         [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
-            // Delete supplier from database
+            PartnerDataService.DeleteSupplier(id);
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Search(PaginationSearchInput input)
+        {
+            // Save search conditions to session
+            ApplicationContext.SetSessionData("SupplierSearchConditions", input);
+
+            // Fetch data based on search conditions
+            var pagedResult = PartnerDataService.ListSuppliers(input);
+
+            // Map Partner.Supplier to Models.Supplier
+            var mappedResult = new PagedResult<SV22T1020761.Models.Supplier>
+            {
+                Page = pagedResult.Page,
+                PageSize = pagedResult.PageSize,
+                RowCount = pagedResult.RowCount,
+                DataItems = pagedResult.DataItems.Select(s => new SV22T1020761.Models.Supplier
+                {
+                    SupplierID = s.SupplierID,
+                    SupplierName = s.SupplierName,
+                    ContactName = s.ContactName,
+                    Province = s.Province,
+                    Address = s.Address
+                }).ToList()
+            };
+
+            // Return partial view with updated data
+            return PartialView("_SupplierTable", mappedResult);
         }
     }
 }

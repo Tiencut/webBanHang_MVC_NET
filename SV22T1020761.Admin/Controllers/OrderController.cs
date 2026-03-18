@@ -16,7 +16,29 @@ namespace SV22T1020761.Admin.Controllers
                 PageSize = pageSize
             };
 
-            var model = SalesDataService.ListOrders(input);
+            var orders = SalesDataService.ListOrders(input);
+            var model = new PagedResult<Order>
+            {
+                Page = orders.Page,
+                PageSize = orders.PageSize,
+                RowCount = orders.RowCount,
+                DataItems = orders.DataItems.Select(order => new Order
+                {
+                    OrderID = order.OrderID,
+                    CustomerID = order.CustomerID,
+                    CustomerName = SalesDataService.GetCustomerName(order.CustomerID),
+                    OrderTime = order.OrderTime,
+                    DeliveryProvince = order.DeliveryProvince,
+                    DeliveryAddress = order.DeliveryAddress,
+                    EmployeeID = order.EmployeeID,
+                    AcceptTime = order.AcceptTime,
+                    ShipperID = order.ShipperID,
+                    ShippedTime = order.ShippedTime,
+                    FinishedTime = order.FinishedTime,
+                    Status = order.Status
+                }).ToList()
+            };
+
             return View(model);
         }
 

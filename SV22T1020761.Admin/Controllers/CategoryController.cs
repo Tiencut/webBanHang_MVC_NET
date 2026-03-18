@@ -73,5 +73,13 @@ namespace SV22T1020761.Admin.Controllers
             CatalogDataService.DeleteCategory(id);
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult Search(PaginationSearchInput input)
+        {
+            ApplicationContext.SetSessionData("CategorySearchConditions", input);
+            var result = CatalogDataService.ListCategories(input);
+            return PartialView("_CategoryTable", result);
+        }
     }
 }

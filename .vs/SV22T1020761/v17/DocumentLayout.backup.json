@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\controllers\\employeecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.admin\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.admin\\controllers\\customercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\controllers\\customercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -63,10 +67,6 @@
       "RelativeMoniker": "D:0:0:{90B0BE24-FFD1-488D-BCC6-E41957934E4E}|SV22T1020761.BusinessLayers\\SV22T1020761.BusinessLayers.csproj|solutionrelative:sv22t1020761.businesslayers\\partnerdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.admin\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{90B0BE24-FFD1-488D-BCC6-E41957934E4E}|SV22T1020761.BusinessLayers\\SV22T1020761.BusinessLayers.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.businesslayers\\hrdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{90B0BE24-FFD1-488D-BCC6-E41957934E4E}|SV22T1020761.BusinessLayers\\SV22T1020761.BusinessLayers.csproj|solutionrelative:sv22t1020761.businesslayers\\hrdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -113,6 +113,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.admin\\views\\supplier\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\views\\supplier\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.admin\\views\\employee\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\views\\employee\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|d:\\tiencut\\codehoc\\laptrinhweb_nhom1_hk3_20242025-main\\sv22t1020761\\sv22t1020761.admin\\views\\employee\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BFD85825-E870-4675-B5CE-A1685A34AA2C}|SV22T1020761.Admin\\SV22T1020761.Admin.csproj|solutionrelative:sv22t1020761.admin\\views\\employee\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -122,8 +130,20 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Views\\Employee\\Index.cshtml",
+              "RelativeDocumentMoniker": "SV22T1020761.Admin\\Views\\Employee\\Index.cshtml",
+              "ToolTip": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Views\\Employee\\Index.cshtml",
+              "RelativeToolTip": "SV22T1020761.Admin\\Views\\Employee\\Index.cshtml",
+              "ViewState": "AgIAAG8AAAAAAAAAAIBJwHEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-17T16:22:36.679Z"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 27,
@@ -134,8 +154,7 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Views\\Supplier\\Delete.cshtml",
               "ViewState": "AgIAADYAAAAAAAAAAIBJwCMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-03-17T16:19:11.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T16:19:11.85Z"
             },
             {
               "$type": "Document",
@@ -147,8 +166,7 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Views\\Supplier\\Edit.cshtml",
               "ViewState": "AgIAAEEAAAAAAAAAAABRwB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-03-17T16:18:32.441Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T16:18:32.441Z"
             },
             {
               "$type": "Document",
@@ -158,14 +176,38 @@
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Controllers\\EmployeeController.cs",
               "ToolTip": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\EmployeeController.cs",
               "RelativeToolTip": "SV22T1020761.Admin\\Controllers\\EmployeeController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-17T16:06:14.974Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
+              "Title": "CategoryController.cs",
+              "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\CategoryController.cs",
+              "RelativeDocumentMoniker": "SV22T1020761.Admin\\Controllers\\CategoryController.cs",
+              "ToolTip": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\CategoryController.cs",
+              "RelativeToolTip": "SV22T1020761.Admin\\Controllers\\CategoryController.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBMAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-17T14:18:35.78Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Views\\Employee\\Edit.cshtml",
+              "RelativeDocumentMoniker": "SV22T1020761.Admin\\Views\\Employee\\Edit.cshtml",
+              "ToolTip": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Views\\Employee\\Edit.cshtml",
+              "RelativeToolTip": "SV22T1020761.Admin\\Views\\Employee\\Edit.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAEBlwC0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-17T16:23:06.014Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "OrderController.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\OrderController.cs",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Controllers\\OrderController.cs",
@@ -173,12 +215,11 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Controllers\\OrderController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T16:06:01.489Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T16:06:01.489Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Views\\Supplier\\Index.cshtml",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Views\\Supplier\\Index.cshtml",
@@ -186,12 +227,11 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Views\\Supplier\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAGMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-03-17T15:54:56.256Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T15:54:56.256Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "SupplierController.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\SupplierController.cs",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Controllers\\SupplierController.cs",
@@ -199,12 +239,11 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Controllers\\SupplierController.cs",
               "ViewState": "AgIAADMAAAAAAAAAAAAowB8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T15:29:05.781Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T15:29:05.781Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "CustomerController.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\CustomerController.cs",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Controllers\\CustomerController.cs",
@@ -212,12 +251,11 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Controllers\\CustomerController.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAF4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T08:48:15.25Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T08:48:15.25Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "SupplierRepository.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.DataLayers\\SQLServer\\Partner\\SupplierRepository.cs",
               "RelativeDocumentMoniker": "SV22T1020761.DataLayers\\SQLServer\\Partner\\SupplierRepository.cs",
@@ -225,12 +263,11 @@
               "RelativeToolTip": "SV22T1020761.DataLayers\\SQLServer\\Partner\\SupplierRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T08:19:23.317Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T08:19:23.317Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\appsettings.json",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\appsettings.json",
@@ -238,12 +275,11 @@
               "RelativeToolTip": "SV22T1020761.Admin\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-14T06:36:16.73Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T06:36:16.73Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "EmployeeRepository.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.DataLayers\\SQLServer\\HR\\EmployeeRepository.cs",
               "RelativeDocumentMoniker": "SV22T1020761.DataLayers\\SQLServer\\HR\\EmployeeRepository.cs",
@@ -255,7 +291,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "CategoryRepository.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.DataLayers\\SQLServer\\CategoryRepository.cs",
               "RelativeDocumentMoniker": "SV22T1020761.DataLayers\\SQLServer\\CategoryRepository.cs",
@@ -267,7 +303,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Views\\Customer\\Index.cshtml",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Views\\Customer\\Index.cshtml",
@@ -275,12 +311,11 @@
               "RelativeToolTip": "SV22T1020761.Admin\\Views\\Customer\\Index.cshtml",
               "ViewState": "AgIAAAMAAAAAAAAAAAAawBAAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-03-14T08:47:45.098Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T08:47:45.098Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "ShipperRepository.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.DataLayers\\SQLServer\\Partner\\ShipperRepository.cs",
               "RelativeDocumentMoniker": "SV22T1020761.DataLayers\\SQLServer\\Partner\\ShipperRepository.cs",
@@ -304,7 +339,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "ProvinceRepository.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.DataLayers\\SQLServer\\Dictionary\\ProvinceRepository.cs",
               "RelativeDocumentMoniker": "SV22T1020761.DataLayers\\SQLServer\\Dictionary\\ProvinceRepository.cs",
@@ -316,7 +351,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "ApplicationContext - Copy.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\AppCodes\\ApplicationContext - Copy.cs",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\AppCodes\\ApplicationContext - Copy.cs",
@@ -328,7 +363,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Program.cs",
               "RelativeDocumentMoniker": "SV22T1020761.Admin\\Program.cs",
@@ -340,7 +375,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "PartnerDataService.cs",
               "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.BusinessLayers\\PartnerDataService.cs",
               "RelativeDocumentMoniker": "SV22T1020761.BusinessLayers\\PartnerDataService.cs",
@@ -349,18 +384,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-14T07:01:41.807Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "CategoryController.cs",
-              "DocumentMoniker": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\CategoryController.cs",
-              "RelativeDocumentMoniker": "SV22T1020761.Admin\\Controllers\\CategoryController.cs",
-              "ToolTip": "D:\\TienCut\\codeHoc\\laptrinhweb_nhom1_hk3_20242025-main\\SV22T1020761\\SV22T1020761.Admin\\Controllers\\CategoryController.cs",
-              "RelativeToolTip": "SV22T1020761.Admin\\Controllers\\CategoryController.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBMAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T14:18:35.78Z"
             },
             {
               "$type": "Document",

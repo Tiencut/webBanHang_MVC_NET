@@ -1,0 +1,27 @@
+@model PagedResult<SV22T1020761.Models.Customer>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer Name</th>
+            <th>Contact Name</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model.DataItems)
+        {
+            <tr>
+                <td>@customer.CustomerID</td>
+                <td>@customer.CustomerName</td>
+                <td>@customer.ContactName</td>
+                <td>@customer.Address</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <span>Page @Model.Page of @Model.PageCount</span>
+</div>
