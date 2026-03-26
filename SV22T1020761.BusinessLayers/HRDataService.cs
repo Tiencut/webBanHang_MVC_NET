@@ -1,6 +1,8 @@
 using SV22T1020761.DataLayers.SQLServer.HR;
 using SV22T1020761.Models.HR;
 using SV22T1020761.Models.Common;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace SV22T1020761.BusinessLayers
 {
@@ -24,20 +26,26 @@ namespace SV22T1020761.BusinessLayers
 
         public static void AddEmployee(Employee employee)
         {
-            // Implementation for adding an employee
-            throw new NotImplementedException();
+            _employeeRepo.AddAsync(employee).GetAwaiter().GetResult();
         }
 
         public static void UpdateEmployee(Employee employee)
         {
-            // Implementation for updating an employee
-            throw new NotImplementedException();
+            _employeeRepo.UpdateAsync(employee).GetAwaiter().GetResult();
         }
 
         public static void DeleteEmployee(int employeeId)
         {
-            // Implementation for deleting an employee
-            throw new NotImplementedException();
+            _employeeRepo.DeleteAsync(employeeId).GetAwaiter().GetResult();
         }
+
+        // Async wrappers
+        public static Task<Employee?> GetEmployeeAsync(int id) => _employeeRepo.GetAsync(id);
+
+        public static Task<bool> ValidateEmployeeEmailAsync(string email, int id = 0) => _employeeRepo.ValidateEmailAsync(email, id);
+
+        public static Task<int> AddEmployeeAsync(Employee employee) => _employeeRepo.AddAsync(employee);
+
+        public static Task<bool> UpdateEmployeeAsync(Employee employee) => _employeeRepo.UpdateAsync(employee);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace SV22T1020761.Models.Catalog
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SV22T1020761.Models.Catalog
 {
     /// <summary>
     /// Loại hàng
@@ -12,6 +14,8 @@
         /// <summary>
         /// Tên loại hàng
         /// </summary>
+        [Required]
+        [StringLength(200)]
         public string CategoryName { get; set; } = string.Empty;
         /// <summary>
         /// Mô tả loại hàng

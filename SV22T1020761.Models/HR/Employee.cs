@@ -1,4 +1,6 @@
-﻿namespace SV22T1020761.Models.HR
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SV22T1020761.Models.HR
 {
     /// <summary>
     /// Nhân viên
@@ -12,6 +14,8 @@
         /// <summary>
         /// Họ và tên
         /// </summary>
+        [Required]
+        [StringLength(200)]
         public string FullName { get; set; } = string.Empty;
         /// <summary>
         /// Ngày sinh
@@ -24,10 +28,12 @@
         /// <summary>
         /// Điện thoại
         /// </summary>
+        [Phone]
         public string? Phone { get; set; }
         /// <summary>
         /// Email
         /// </summary>
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
         /// <summary>
         /// Tên file ảnh (nếu có)

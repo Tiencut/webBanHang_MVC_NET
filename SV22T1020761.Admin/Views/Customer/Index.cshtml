@@ -10,9 +10,10 @@
 }
 <div class="card mb-3">
     <div class="card-body">
-        <form id="formSearch" method="get" action="~/Customer/Index">
+        <form id="formSearch" method="post" asp-action="Search" asp-controller="Customer">
+            @Html.AntiForgeryToken()
             <div class="input-group">
-                <input type="text" name="searchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Tên khách hàng..." autofocus />
+                <input type="text" id="searchInput" name="SearchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Tên khách hàng..." autofocus />
                 <button class="btn btn-info d-flex align-items-center">
                     <i class="bi bi-search me-1"></i>
                 </button>
@@ -25,100 +26,125 @@
 </div>
 <div class="card">
     <div class="card-body p-1">
-        <table class="table table-bordered table-hover mb-0">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Tên khách hàng</th>
-                    <th>Tên giao dịch</th>
-                    <th>Điện thoại</th>
-                    <th>Email</th>
-                    <th>Địa chỉ</th>
-                    <th>Tỉnh / Thành</th>
-                    <th class="text-center" style="width:120px;">Trạng thái</th>
-                    <th class="text-center" style="width:100px;">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model?.DataItems != null && Model.DataItems.Count > 0)
-                {
-                    foreach (var item in Model.DataItems)
+        <div id="customerTableContainer">
+            <table class="table table-bordered table-hover mb-0">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Tên khách hàng</th>
+                        <th>Tên giao dịch</th>
+                        <th>Điện thoại</th>
+                        <th>Email</th>
+                        <th>Địa chỉ</th>
+                        <th>Tỉnh / Thành</th>
+                        <th class="text-center" style="width:120px;">Trạng thái</th>
+                        <th class="text-center" style="width:100px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model?.DataItems != null && Model.DataItems.Count > 0)
+                    {
+                        foreach (var item in Model.DataItems)
+                        {
+                            <tr>
+                                <td>@item.CustomerName</td>
+                                <td>@item.ContactName</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Email</td>
+                                <td>@item.Address</td>
+                                <td>@item.Province</td>
+                                <td class="text-center">
+                                    @if (item.IsLocked ?? false)
+                                    {
+                                        <span class="badge bg-danger">Khóa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <a href="#" class="btn btn-sm btn-primary open-modal" data-url="@Url.Action("Form","Customer", new { id = item.CustomerID })">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-danger open-modal" data-url="@Url.Action("Form","Customer", new { id = item.CustomerID })?delete=true">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>@item.CustomerName</td>
-                            <td>@item.ContactName</td>
-                            <td>@item.Phone</td>
-                            <td>@item.Email</td>
-                            <td>@item.Address</td>
-                            <td>@item.Province</td>
-                            <td class="text-center">
-                                @if (item.IsLocked ?? false)
-                                {
-                                    <span class="badge bg-danger">Khóa</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success">Hoạt động</span>
-                                }
-                            </td>
-                            <td class="text-center text-nowrap">
-                                <a href="~/Customer/Edit/@item.CustomerID" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="~/Customer/Delete/@item.CustomerID" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
+                            <td colspan="8" class="text-center">Không có dữ liệu</td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="8" class="text-center">Không có dữ liệu</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mt-3">
+    <ul class="pagination justify-content-center mt-3" id="customerPager">
         @for (int i = 1; i <= Model?.PageCount; i++)
         {
             <li class="page-item @(i == Model.Page ? "active" : "")">
-                <a class="page-link" href="?page=@i&searchValue=@Context.Request.Query["searchValue"]">@i</a>
+                <a class="page-link" href="#" data-page="@i">@i</a>
             </li>
         }
     </ul>
 </nav>
 
-<script>
-    $(document).ready(function () {
-        $("#searchForm").on("submit", function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                url: "@Url.Action("Search", "Customer")",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function (result) {
-                    $("#customerTableContainer").html(result);
-                },
-                error: function () {
-                    alert("An error occurred while processing your request.");
-                }
+@section Scripts {
+    <script>
+        function debounce(fn, delay) {
+            var t;
+            return function () { clearTimeout(t); t = setTimeout(fn, delay); };
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('formSearch');
+            var input = document.getElementById('searchInput');
+            async function doSearch(page) {
+                var url = form.action;
+                var data = new URLSearchParams(new FormData(form));
+                if (page) data.set('Page', page);
+                try {
+                    var res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: data.toString()
+                    });
+                    if (res.ok) {
+                        var html = await res.text();
+                        document.getElementById('customerTableContainer').innerHTML = html;
+                        var searchVal = form.querySelector('input[name="SearchValue"], input[name="searchValue"]')?.value || '';
+                        var params = new URLSearchParams();
+                        if (searchVal) params.set('searchValue', searchVal);
+                        params.set('page', page || 1);
+                        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+                    }
+                } catch (err) { console.error(err); showToast('Lỗi khi tìm kiếm: ' + err.message, 'error'); }
+            }
+            var debounced = debounce(function () { doSearch(1); }, 300);
+            input.addEventListener('keyup', debounced);
+            document.getElementById('customerTableContainer').addEventListener('click', function (e) {
+                var target = e.target.closest('a[data-page]');
+                if (target) { e.preventDefault(); doSearch(target.getAttribute('data-page')); return; }
+                var btn = e.target.closest('.open-modal');
+                if (btn) { e.preventDefault(); openModal(btn.getAttribute('data-url')); }
             });
+            async function openModal(url) {
+                try {
+                    var res = await fetch(url);
+                    if (res.ok) {
+                        var html = await res.text();
+                        document.querySelector('#dialogModal .modal-content').innerHTML = html;
+                        var modalEl = document.getElementById('dialogModal');
+                        var modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    }
+                } catch (err) { console.error(err); showToast('Lỗi: ' + err.message, 'error'); }
+            }
         });
-    });
-</script>
-
-<div>
-    <form id="searchForm">
-        <input type="text" name="SearchValue" placeholder="Search..." />
-        <button type="submit">Search</button>
-    </form>
-</div>
-
-<div id="customerTableContainer">
-    @Html.Partial("_CustomerTable", Model)
-</div>
+    </script>
+}

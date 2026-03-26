@@ -1,0 +1,55 @@
+@model SV22T1020761.Models.Partner.Supplier
+<form id="formSupplier" method="post" action="~/Supplier/Create">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="SupplierID" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Tên nhà cung c?p</label>
+        <input asp-for="SupplierName" class="form-control" />
+        <span asp-validation-for="SupplierName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Liên h?</label>
+        <input asp-for="ContactName" class="form-control" />
+        <span asp-validation-for="ContactName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Ð?a ch?</label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary">Lýu</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+    </div>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('formSupplier');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!$(form).valid()) return;
+            var url = form.action;
+            var formData = new FormData(form);
+            try {
+                var res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                if (res.ok) {
+                    var html = await res.text();
+                    document.getElementById('supplierTableContainer').innerHTML = html;
+                    var modalEl = document.getElementById('dialogModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                } else {
+                    var html = await res.text();
+                    document.querySelector('#dialogModal .modal-content').innerHTML = html;
+                }
+            } catch (err) {
+                showToast('L?i khi lýu: ' + err.message, 'error');
+            }
+        });
+    });
+</script>

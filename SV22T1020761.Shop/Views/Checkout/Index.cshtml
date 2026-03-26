@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h3>Checkout</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Place" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label class="form-label">T?nh/Thành</label>
+                <input name="deliveryProvince" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ð?a ch?</label>
+                <input name="deliveryAddress" class="form-control" />
+            </div>
+            <button class="btn btn-success">Ð?t hàng</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h5>Tóm t?t gi? hàng</h5>
+        <div id="checkoutCart">
+            @{
+                var summary = ViewBag.Summary as (int Count, decimal Total)?;
+                var cart = ViewBag.Cart as System.Collections.Generic.List<SV22T1020761.Shop.AppCodes.CartItem>;
+            }
+            @if (cart != null && cart.Count>0)
+            {
+                <table class="table">
+                    <thead><tr><th>S?n ph?m</th><th>S? lý?ng</th><th>Giá</th><th>Thành ti?n</th></tr></thead>
+                    <tbody>
+                        @foreach(var it in cart)
+                        {
+                            <tr>
+                                <td>@it.ProductName</td>
+                                <td>@it.Qty</td>
+                                <td>@it.Price</td>
+                                <td>@(it.Price*it.Qty)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p>T?ng: @summary?.Total</p>
+            }
+            else
+            {
+                <div class="alert alert-warning">Gi? hàng tr?ng</div>
+            }
+        </div>
+    </div>
+</div>

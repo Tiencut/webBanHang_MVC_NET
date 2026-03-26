@@ -1,0 +1,20 @@
+@model SV22T1020761.Models.Catalog.Product
+<div class="row">
+    <div class="col-md-5">
+        @if (!string.IsNullOrEmpty(Model.Photo))
+        {
+            <img src="~/images/products/@Model.Photo" class="img-fluid" />
+        }
+    </div>
+    <div class="col-md-7">
+        <h4>@Model.ProductName</h4>
+        <p>@Model.ProductDescription</p>
+        <p><strong>Giá:</strong> @Model.Price</p>
+        <form method="post" asp-controller="Cart" asp-action="Add" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.ProductID" />
+            <input type="number" name="qty" value="1" min="1" class="form-control mb-2" style="width:100px;display:inline-block;" />
+            <button class="btn btn-success">Thêm vào gi?</button>
+        </form>
+    </div>
+</div>

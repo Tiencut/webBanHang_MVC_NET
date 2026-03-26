@@ -1,0 +1,103 @@
+@model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Catalog.Product>
+@{
+    ViewData["Title"] = "Danh sách s?n ph?m";
+}
+<div class="container">
+    <h3>@ViewData["Title"]</h3>
+    <form id="formSearch" method="post" asp-action="Search" asp-controller="Products">
+        @Html.AntiForgeryToken()
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <input type="text" name="SearchValue" value="@ViewBag.FilterSearchValue" class="form-control" placeholder="T?m ki?m s?n ph?m..." />
+            </div>
+            <div class="col-md-3">
+                <select name="CategoryID" class="form-select">
+                    <option value="0">-- T?t c? lo?i --</option>
+                    @foreach(var c in (System.Collections.Generic.List<SV22T1020761.Models.Catalog.Category>)(ViewBag.Categories ?? new System.Collections.Generic.List<SV22T1020761.Models.Catalog.Category>()))
+                    {
+                        if (ViewBag.FilterCategoryId == c.CategoryID) {
+                            <option value="@c.CategoryID" selected>@c.CategoryName</option>
+                        } else {
+                            <option value="@c.CategoryID">@c.CategoryName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="MinPrice" step="0.01" placeholder="Min" value="@ViewBag.FilterMinPrice" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="MaxPrice" step="0.01" placeholder="Max" value="@ViewBag.FilterMaxPrice" class="form-control" />
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-primary">T?m</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="productTableContainer">
+        @Html.Partial("_ProductTable", Model)
+    </div>
+</div>
+
+<!-- Modal for quick view -->
+<div class="modal fade" id="dialogModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+@section Scripts {
+    <script>
+        function debounce(fn, delay) { var t; return function () { clearTimeout(t); t = setTimeout(fn, delay); }; }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('formSearch');
+            var input = form.querySelector('input[name="SearchValue"]');
+
+            async function doSearch(page) {
+                var token = form.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                var data = new URLSearchParams(new FormData(form));
+                if (page) data.set('Page', page);
+                try {
+                    var res = await fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: data.toString()
+                    });
+                    if (res.ok) {
+                        var html = await res.text();
+                        document.getElementById('productTableContainer').innerHTML = html;
+                        var searchVal = form.querySelector('input[name="SearchValue"]')?.value || '';
+                        var params = new URLSearchParams();
+                        if (searchVal) params.set('searchValue', searchVal);
+                        params.set('page', page || 1);
+                        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+                    } else {
+                        console.error('Search failed');
+                    }
+                } catch (err) { console.error(err); }
+            }
+
+            var debounced = debounce(function () { doSearch(1); }, 300);
+            input.addEventListener('keyup', debounced);
+
+            document.getElementById('productTableContainer').addEventListener('click', function (e) {
+                var target = e.target.closest('a[data-page]');
+                if (target) { e.preventDefault(); doSearch(target.getAttribute('data-page')); }
+
+                // quick view button
+                var qbtn = e.target.closest('button[data-quickview]');
+                if (qbtn) {
+                    var id = qbtn.getAttribute('data-quickview');
+                    fetch('/Products/QuickView/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.text()).then(html => {
+                            document.querySelector('#dialogModal .modal-content').innerHTML = html;
+                            var modal = new bootstrap.Modal(document.getElementById('dialogModal'));
+                            modal.show();
+                        });
+                }
+            });
+        });
+    </script>
+}

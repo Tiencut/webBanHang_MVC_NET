@@ -1,23 +1,27 @@
 using System.Collections.Generic;
 using SV22T1020761.Models.Common;
 using SV22T1020761.Models.Sales;
+using SV22T1020761.DataLayers.SQLServer.Sales;
+using System.Threading.Tasks;
 
 namespace SV22T1020761.BusinessLayers
 {
     public static class SalesDataService
     {
-        public static PagedResult<Order> ListOrders(PaginationSearchInput input)
+        public static PagedResult<OrderViewInfo> ListOrders(PaginationSearchInput input)
         {
-            // Placeholder implementation for listing orders with pagination
-            var orders = new List<Order>(); // Replace with actual data retrieval logic
-
-            return new PagedResult<Order>
+            var repo = new OrderRepository(Configuration.ConnectionString);
+            var orderInput = new OrderSearchInput
             {
-                Page = input.Page,
-                PageSize = input.PageSize,
-                RowCount = orders.Count, // Replace with actual total count
-                DataItems = orders
+                Page = input?.Page ?? 1,
+                PageSize = input?.PageSize ?? 10,
+                SearchValue = input?.SearchValue ?? string.Empty,
+                // leave other filters to defaults
             };
+            // call repository synchronously (repo has async method)
+            var task = repo.ListAsync(orderInput);
+            task.Wait();
+            return task.Result;
         }
 
         public static string GetCustomerName(int? customerId)
@@ -45,6 +49,34 @@ namespace SV22T1020761.BusinessLayers
         public static void DeleteOrder(int id)
         {
             // Placeholder implementation for deleting an order
+        }
+
+        // New async implementations using repository
+        public static async Task<int> AddOrderAsync(Order order, List<OrderDetail> details)
+        {
+            var repo = new OrderRepository(Configuration.ConnectionString);
+            var orderId = await repo.AddAsync(order);
+            if (details != null)
+            {
+                foreach (var d in details)
+                {
+                    d.OrderID = orderId;
+                    await repo.AddDetailAsync(d);
+                }
+            }
+            return orderId;
+        }
+
+        public static async Task<OrderViewInfo?> GetOrderAsync(int id)
+        {
+            var repo = new OrderRepository(Configuration.ConnectionString);
+            return await repo.GetAsync(id);
+        }
+
+        public static async Task<List<OrderDetailViewInfo>> ListOrderDetailsAsync(int orderId)
+        {
+            var repo = new OrderRepository(Configuration.ConnectionString);
+            return await repo.ListDetailsAsync(orderId);
         }
     }
 }

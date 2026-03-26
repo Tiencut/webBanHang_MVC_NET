@@ -1,4 +1,6 @@
-﻿namespace SV22T1020761.Models.Catalog
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SV22T1020761.Models.Catalog
 {
     /// <summary>
     /// Mặt hàng
@@ -12,6 +14,8 @@
         /// <summary>
         /// Tên mặt hàng
         /// </summary>
+        [Required]
+        [StringLength(200)]
         public string ProductName { get; set; } = string.Empty;
         /// <summary>
         /// Mô tả mặt hàng
@@ -28,10 +32,12 @@
         /// <summary>
         /// Đơn vi tính
         /// </summary>
+        [StringLength(50)]
         public string Unit { get; set; } = string.Empty;
         /// <summary>
         /// Giá
         /// </summary>
+        [Range(0.01, 100000000)]
         public decimal Price { get; set; }
         /// <summary>
         /// Tên file ảnh đại diện của mặt hàng (nếu có)
@@ -44,6 +50,7 @@
         /// <summary>
         /// Số lượng tồn
         /// </summary>
+        [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
     }
 }

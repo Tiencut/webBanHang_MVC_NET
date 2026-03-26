@@ -1,0 +1,50 @@
+@model SV22T1020761.Models.Shipper
+<form id="formShipper" method="post" action="~/Shipper/Create">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ShipperID" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Tên ngý?i giao hàng</label>
+        <input asp-for="ShipperName" class="form-control" />
+        <span asp-validation-for="ShipperName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">S? ði?n tho?i</label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary">Lýu</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+    </div>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('formShipper');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!$(form).valid()) return;
+            var url = form.action;
+            var formData = new FormData(form);
+            try {
+                var res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                if (res.ok) {
+                    var html = await res.text();
+                    document.getElementById('shipperTableContainer').innerHTML = html;
+                    var modalEl = document.getElementById('dialogModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                } else {
+                    var html = await res.text();
+                    document.querySelector('#dialogModal .modal-content').innerHTML = html;
+                }
+            } catch (err) {
+                showToast('L?i khi lýu: ' + err.message, 'error');
+            }
+        });
+    });
+</script>

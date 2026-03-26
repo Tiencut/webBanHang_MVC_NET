@@ -11,13 +11,5 @@ namespace SV22T1020761.DataLayers.SQLServer
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer(Configuration.ConnectionString);
-            }
-        }
     }
 }

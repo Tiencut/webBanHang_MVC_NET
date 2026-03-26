@@ -15,7 +15,8 @@ namespace SV22T1020761.Shop.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            // Redirect root to Products index (catalog)
+            return RedirectToAction("Index", "Products");
         }
 
         public IActionResult Privacy()

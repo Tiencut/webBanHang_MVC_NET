@@ -1,0 +1,74 @@
+@model SV22T1020761.Models.HR.Employee
+<form id="formEmployee" method="post" enctype="multipart/form-data" action="~/Employee/SaveData">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="EmployeeID" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">H? và tên</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Ði?n tho?i</label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Ð?a ch?</label>
+        <textarea asp-for="Address" class="form-control"></textarea>
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">?nh</label>
+        <input type="file" name="uploadPhoto" class="form-control" accept="image/*" />
+        @if (!string.IsNullOrEmpty(Model.Photo))
+        {
+            <img src="~/images/employees/@Model.Photo" class="img-thumbnail mt-2" style="max-height:120px;" />
+        }
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input class="form-check-input" asp-for="IsWorking" type="checkbox" id="IsWorking" />
+        <label class="form-check-label" for="IsWorking">Ðang làm vi?c</label>
+    </div>
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary">Lýu</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+    </div>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('formEmployee');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!$(form).valid()) return;
+            var url = form.action;
+            var formData = new FormData(form);
+            try {
+                var res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                if (res.ok) {
+                    var html = await res.text();
+                    // replace table
+                    document.getElementById('employeeTableContainer').innerHTML = html;
+                    // close modal
+                    var modalEl = document.getElementById('dialogModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                } else {
+                    var html = await res.text();
+                    document.querySelector('#dialogModal .modal-content').innerHTML = html;
+                }
+            } catch (err) {
+                showToast('L?i khi lýu: ' + err.message, 'error');
+            }
+        });
+    });
+</script>

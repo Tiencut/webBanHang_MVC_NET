@@ -2,11 +2,19 @@
 using SV22T1020761.BusinessLayers;
 using SV22T1020761.Models.Common;
 using SV22T1020761.Models.Catalog;
+using Microsoft.Extensions.Logging;
 
 namespace SV22T1020761.Admin.Controllers
 {
     public class ProductController : Controller
     {
+        private readonly ILogger<ProductController> _logger;
+
+        public ProductController(ILogger<ProductController> logger)
+        {
+            _logger = logger;
+        }
+
         // =====================================================
         // Product/Index
         // =====================================================
@@ -19,8 +27,42 @@ namespace SV22T1020761.Admin.Controllers
                 PageSize = pageSize
             };
 
-            var model = CatalogDataService.ListProducts(input);
-            return View(model);
+            try
+            {
+                var model = CatalogDataService.ListProducts(input);
+                return View(model);
+            }
+            catch (System.Exception ex)
+            {
+                _logger?.LogError(ex, "Error loading products");
+                TempData["Error"] = "Không thể kết nối tới cơ sở dữ liệu. Vui lòng kiểm tra cấu hình và thử lại.";
+                var empty = new PagedResult<Product> { Page = page, PageSize = pageSize, RowCount = 0, DataItems = new System.Collections.Generic.List<Product>() };
+                return View(empty);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Search(PaginationSearchInput input)
+        {
+            var result = CatalogDataService.ListProducts(input);
+            return PartialView("_ProductTable", result);
+        }
+
+        // Partial form for modal
+        [HttpGet]
+        public IActionResult Form(int? id, bool delete = false)
+        {
+            if (id == null || id == 0)
+            {
+                var model = new Product();
+                if (delete) return BadRequest();
+                return PartialView("_ProductForm", model);
+            }
+            var product = CatalogDataService.GetProduct(id.Value);
+            if (product == null) return NotFound();
+            if (delete) return PartialView("_ProductDelete", product);
+            return PartialView("_ProductForm", product);
         }
 
         // =====================================================
@@ -32,14 +74,30 @@ namespace SV22T1020761.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Product product)
         {
-            if (ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid) return View(product);
                 CatalogDataService.AddProduct(product);
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    var input = new PaginationSearchInput { Page = 1, PageSize = 10, SearchValue = "" };
+                    var result = CatalogDataService.ListProducts(input);
+                    return PartialView("_ProductTable", result);
+                }
+
+                TempData["Success"] = "Thêm sản phẩm thành công.";
                 return RedirectToAction("Index");
             }
-            return View(product);
+            catch (System.Exception ex)
+            {
+                _logger?.LogError(ex, "Error creating product");
+                ModelState.AddModelError(string.Empty, "Hệ thống đang bận. Vui lòng thử lại sau.");
+                return View(product);
+            }
         }
 
         // =====================================================
@@ -56,14 +114,30 @@ namespace SV22T1020761.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(Product product)
         {
-            if (ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid) return View(product);
                 CatalogDataService.UpdateProduct(product);
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    var input = new PaginationSearchInput { Page = 1, PageSize = 10, SearchValue = "" };
+                    var result = CatalogDataService.ListProducts(input);
+                    return PartialView("_ProductTable", result);
+                }
+
+                TempData["Success"] = "Cập nhật sản phẩm thành công.";
                 return RedirectToAction("Index");
             }
-            return View(product);
+            catch (System.Exception ex)
+            {
+                _logger?.LogError(ex, "Error updating product (Id={ProductId})", product?.ProductID);
+                ModelState.AddModelError(string.Empty, "Hệ thống đang bận. Vui lòng thử lại sau.");
+                return View(product);
+            }
         }
 
         // =====================================================
@@ -80,10 +154,30 @@ namespace SV22T1020761.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            CatalogDataService.DeleteProduct(id);
-            return RedirectToAction("Index");
+            try
+            {
+                CatalogDataService.DeleteProduct(id);
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    var input = new PaginationSearchInput { Page = 1, PageSize = 10, SearchValue = "" };
+                    var result = CatalogDataService.ListProducts(input);
+                    return PartialView("_ProductTable", result);
+                }
+
+                TempData["Success"] = "Xóa sản phẩm thành công.";
+                return RedirectToAction("Index");
+            }
+            catch (System.Exception ex)
+            {
+                _logger?.LogError(ex, "Error deleting product (Id={ProductId})", id);
+                var product = CatalogDataService.GetProduct(id);
+                ModelState.AddModelError(string.Empty, "Không thể xóa sản phẩm. Vui lòng thử lại sau.");
+                return View("Delete", product);
+            }
         }
 
         // =====================================================

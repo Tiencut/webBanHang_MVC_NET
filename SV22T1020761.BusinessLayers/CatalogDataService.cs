@@ -1,6 +1,8 @@
 using SV22T1020761.DataLayers.SQLServer;
+using SV22T1020761.DataLayers.SQLServer.Catalog;
 using SV22T1020761.Models.Catalog;
 using SV22T1020761.Models.Common;
+using System; // for Exception
 
 namespace SV22T1020761.BusinessLayers
 {
@@ -10,10 +12,12 @@ namespace SV22T1020761.BusinessLayers
     public static class CatalogDataService
     {
         private static CategoryRepository _categoryRepo;
+        private static ProductRepository _productRepo;
 
         static CatalogDataService()
         {
             _categoryRepo = new CategoryRepository(Configuration.ConnectionString);
+            _productRepo = new ProductRepository(Configuration.ConnectionString);
         }
 
         public static PagedResult<Category> ListCategories(PaginationSearchInput input)
@@ -21,75 +25,66 @@ namespace SV22T1020761.BusinessLayers
 
         public static PagedResult<Product> ListProducts(PaginationSearchInput input)
         {
-            // Example implementation for listing products from a database
-            using (var context = new ApplicationDbContext()) // Replace with your actual DbContext
+            try
             {
-                var query = context.Products.AsQueryable();
-
-                if (!string.IsNullOrWhiteSpace(input.SearchValue))
+                // Map PaginationSearchInput to ProductSearchInput
+                var pInput = new ProductSearchInput
                 {
-                    query = query.Where(p => p.ProductName.Contains(input.SearchValue));
-                }
-
-                var totalItems = query.Count();
-                var items = query
-                    .Skip((input.Page - 1) * input.PageSize)
-                    .Take(input.PageSize)
-                    .ToList();
-
-                return new PagedResult<Product>
-                {
-                    Page = input.Page,
-                    PageSize = input.PageSize,
-                    RowCount = totalItems,
-                    DataItems = items
+                    Page = input?.Page ?? 1,
+                    PageSize = input?.PageSize ?? 10,
+                    SearchValue = input?.SearchValue ?? string.Empty
                 };
+                return _productRepo.ListAsync(pInput).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                // Avoid throwing raw exceptions to UI. Log minimal info and return empty result.
+                // If you have a logger, replace the Console with logger.
+                System.Diagnostics.Trace.TraceError("CatalogDataService.ListProducts error: {0}", ex.Message);
+                return new PagedResult<Product> { Page = input?.Page ?? 1, PageSize = input?.PageSize ?? 10, RowCount = 0, DataItems = new System.Collections.Generic.List<Product>() };
             }
         }
 
         public static void AddProduct(Product product)
         {
-            // Placeholder implementation for adding a product
+            if (product == null) return;
+            _productRepo.AddAsync(product).GetAwaiter().GetResult();
         }
 
         public static Product GetProduct(int id)
         {
-            // Placeholder implementation for getting a product by ID
-            return new Product();
+            return _productRepo.GetAsync(id).GetAwaiter().GetResult() ?? new Product();
         }
 
         public static void UpdateProduct(Product product)
         {
-            // Placeholder implementation for updating a product
+            if (product == null) return;
+            _productRepo.UpdateAsync(product).GetAwaiter().GetResult();
         }
 
         public static void DeleteProduct(int id)
         {
-            // Placeholder implementation for deleting a product
+            _productRepo.DeleteAsync(id).GetAwaiter().GetResult();
         }
 
         public static void AddCategory(Category category)
         {
-            // Implementation for adding a category
-            throw new NotImplementedException();
+            _categoryRepo.AddAsync(category).GetAwaiter().GetResult();
         }
 
         public static Category GetCategory(int categoryId)
         {
-            // Implementation for retrieving a category by ID
-            throw new NotImplementedException();
+            return _categoryRepo.GetAsync(categoryId).GetAwaiter().GetResult() ?? new Category();
         }
 
         public static void UpdateCategory(Category category)
         {
-            // Implementation for updating a category
-            throw new NotImplementedException();
+            _categoryRepo.UpdateAsync(category).GetAwaiter().GetResult();
         }
 
         public static void DeleteCategory(int categoryId)
         {
-            // Implementation for deleting a category
-            throw new NotImplementedException();
+            _categoryRepo.DeleteAsync(categoryId).GetAwaiter().GetResult();
         }
     }
 }

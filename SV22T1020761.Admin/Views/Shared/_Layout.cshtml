@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="~/lib/adminlte/css/adminlte.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     @await RenderSectionAsync("Styles", required: false)
+    <style>
+        /* Toast position */
+        .app-toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 2000; }
+    </style>
 </head>
 <body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
     <div class="app-wrapper">
@@ -46,6 +50,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Toast container -->
+    <div class="app-toast-container">
+        <div id="appToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto" id="appToastTitle">Thông báo</strong>
+                <small class="text-muted"></small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="appToastBody"></div>
+        </div>
+    </div>
+
     <script src="~/lib/flatpickr/flatpickr.min.js"></script>
     <script src="~/lib/flatpickr/l10n/vn.js"></script>    
     <script src="~/lib/autonumeric/autonumeric.js"></script>    
@@ -53,6 +70,19 @@
     <script type="module" src="~/lib/adminlte/js/adminlte.js"></script>
     <script src="~/js/site.js"></script>
     <script>
+        function showToast(message, type = 'info') {
+            var toastEl = document.getElementById('appToast');
+            document.getElementById('appToastBody').innerHTML = message;
+            var title = document.getElementById('appToastTitle');
+            title.innerText = type === 'success' ? 'Thành công' : (type === 'error' ? 'Lỗi' : 'Thông báo');
+            toastEl.classList.remove('bg-success','bg-danger','bg-info');
+            if (type === 'success') toastEl.classList.add('bg-success');
+            if (type === 'error') toastEl.classList.add('bg-danger');
+            if (type === 'info') toastEl.classList.add('bg-info');
+            var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            toast.show();
+        }
+
         document.addEventListener("DOMContentLoaded", function () {            
             flatpickr(".date-picker", {
                 dateFormat: "d/m/Y",
@@ -72,6 +102,12 @@
                     openModal(e, this);
                 });
             });
+
+            // Show TempData messages as toast if present
+            var success = '@(TempData["Success"] ?? "")';
+            var error = '@(TempData["Error"] ?? "")';
+            if (success) showToast(success, 'success');
+            if (error) showToast(error, 'error');
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

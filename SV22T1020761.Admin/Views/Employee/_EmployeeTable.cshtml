@@ -1,29 +1,65 @@
 @model PagedResult<SV22T1020761.Models.HR.Employee>
 
-<table class="table">
-    <thead>
+<table class="table table-bordered table-hover mb-0">
+    <thead class="table-secondary">
         <tr>
-            <th>ID</th>
-            <th>Full Name</th>
-            <th>Phone</th>
+            <th>Tên nhân viên</th>
+            <th>Ngày sinh</th>
+            <th>Ði?n tho?i</th>
             <th>Email</th>
-            <th>Role</th>
+            <th>Ð?a ch?</th>
+            <th class="text-center" style="width:120px;">Tr?ng thái</th>
+            <th class="text-center" style="width:100px;">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var employee in Model.DataItems)
+        @if (Model?.DataItems != null && Model.DataItems.Count > 0)
+        {
+            foreach (var item in Model.DataItems)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.BirthDate?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Email</td>
+                    <td>@item.Address</td>
+                    <td class="text-center">
+                        @if (item.IsWorking ?? false)
+                        {
+                            <span class="badge bg-success">Ðang làm</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Ngh? vi?c</span>
+                        }
+                    </td>
+                    <td class="text-center text-nowrap">
+                        <a href="#" class="btn btn-sm btn-primary open-employee-modal" data-url="@Url.Action("Form","Employee", new { id = item.EmployeeID })">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-danger open-employee-modal" data-url="@Url.Action("Form","Employee", new { id = item.EmployeeID })?delete=true">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@employee.EmployeeID</td>
-                <td>@employee.FullName</td>
-                <td>@employee.Phone</td>
-                <td>@employee.Email</td>
-                <td>@employee.RoleNames</td>
+                <td colspan="7" class="text-center">Không có d? li?u</td>
             </tr>
         }
     </tbody>
 </table>
 
-<div>
-    <span>Page @Model.Page of @Model.PageCount</span>
-</div>
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mt-3">
+        @for (int i = 1; i <= Model?.PageCount; i++)
+        {
+            <li class="page-item @(i == Model.Page ? "active" : "")">
+                <a class="page-link" href="#" data-page="@i">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

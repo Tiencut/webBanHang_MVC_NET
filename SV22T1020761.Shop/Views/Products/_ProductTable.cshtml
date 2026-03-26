@@ -1,0 +1,47 @@
+@model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Catalog.Product>
+
+<table class="table table-bordered table-hover mb-0">
+    <thead class="table-secondary">
+        <tr>
+            <th>Tên</th>
+            <th>Giá</th>
+            <th>S? lý?ng</th>
+            <th class="text-center">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model?.DataItems != null && Model.DataItems.Count > 0)
+        {
+            foreach (var p in Model.DataItems)
+            {
+                <tr>
+                    <td>@p.ProductName</td>
+                    <td>@p.Price</td>
+                    <td>@p.Quantity</td>
+                    <td class="text-center">
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductID" class="btn btn-sm btn-primary">Xem</a>
+                        <form class="d-inline" method="post" asp-controller="Cart" asp-action="Add">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@p.ProductID" />
+                            <input type="hidden" name="qty" value="1" />
+                            <button class="btn btn-sm btn-success">Thêm</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="4" class="text-center">Không có d? li?u</td></tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination justify-content-center mt-3">
+        @for (int i = 1; i <= Model?.PageCount; i++)
+        {
+            <li class="page-item @(i == Model.Page ? "active" : "")"><a class="page-link" href="#" data-page="@i">@i</a></li>
+        }
+    </ul>
+</nav>

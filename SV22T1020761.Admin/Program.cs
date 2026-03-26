@@ -16,7 +16,7 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(option =>
                 {
-                    option.Cookie.Name = "LiteCommerce.Admin";
+                    option.Cookie.Name = "SV22T1020761.Admin";
                     option.LoginPath = "/Account/Login";
                     option.AccessDeniedPath = "/Account/AccessDenied";
                     option.ExpireTimeSpan = TimeSpan.FromDays(7);

@@ -1,4 +1,6 @@
-﻿namespace SV22T1020761.Models.Partner
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SV22T1020761.Models.Partner
 {
     /// <summary>
     /// Khách hàng
@@ -12,10 +14,13 @@
         /// <summary>
         /// Tên khách hàng
         /// </summary>
+        [Required]
+        [StringLength(200)]
         public string CustomerName { get; set; } = string.Empty;
         /// <summary>
         /// Tên giao dịch
         /// </summary>
+        [StringLength(200)]
         public string ContactName { get; set; } = string.Empty;
         /// <summary>
         /// Tỉnh/thành
@@ -28,10 +33,12 @@
         /// <summary>
         /// Điện thoại
         /// </summary>
+        [Phone]
         public string? Phone { get; set; }
         /// <summary>
         /// Email
         /// </summary>
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
         /// <summary>
         /// Khách hàng hiện có bị khóa hay không?

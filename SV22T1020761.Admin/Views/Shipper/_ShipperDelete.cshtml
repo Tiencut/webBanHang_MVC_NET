@@ -1,0 +1,40 @@
+@model SV22T1020761.Models.Shipper
+<div class="p-3">
+    <h5>B?n có ch?c ch?n mu?n xóa ngý?i giao hàng <strong>@Model.ShipperName</strong>?</h5>
+    <form id="formShipperDelete" method="post" action="~/Shipper/DeleteConfirmed">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="ShipperID" value="@Model.ShipperID" />
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-danger">Xóa</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('formShipperDelete');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var url = form.action;
+            var formData = new FormData(form);
+            try {
+                var res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+                if (res.ok) {
+                    var html = await res.text();
+                    document.getElementById('shipperTableContainer').innerHTML = html;
+                    var modalEl = document.getElementById('dialogModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                } else {
+                    showToast('L?i khi xóa', 'error');
+                }
+            } catch (err) {
+                showToast('L?i khi xóa: ' + err.message, 'error');
+            }
+        });
+    });
+</script>

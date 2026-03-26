@@ -1,0 +1,37 @@
+@model System.Collections.Generic.List<SV22T1020761.Shop.AppCodes.CartItem>
+<table class="table">
+    <thead>
+        <tr>
+            <th>S?n ph?m</th>
+            <th>S? lý?ng</th>
+            <th>Giá</th>
+            <th>Thành ti?n</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>
+                    <form class="d-inline" method="post" asp-controller="Cart" asp-action="Update">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@item.ProductID" />
+                        <input type="number" name="qty" value="@item.Qty" min="1" style="width:80px;" />
+                        <button class="btn btn-sm btn-primary">C?p nh?t</button>
+                    </form>
+                </td>
+                <td>@item.Price</td>
+                <td>@(item.Price * item.Qty)</td>
+                <td>
+                    <form method="post" asp-controller="Cart" asp-action="Remove">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@item.ProductID" />
+                        <button class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
