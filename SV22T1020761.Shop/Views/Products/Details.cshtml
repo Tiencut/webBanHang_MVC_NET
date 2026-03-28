@@ -1,36 +1,74 @@
-@model SV22T1020761.Models.Catalog.Product
+@model SV22T1020761.Models.Catalog.ProductDetailsViewModel
 @{
     ViewData["Title"] = "Chi ti?t s?n ph?m";
 }
 <div class="container">
-    <h3>@Model?.ProductName</h3>
-    @if (Model != null)
-    {
+    <div class="product-details">
         <div class="row">
-            <div class="col-md-4">
-                @if (!string.IsNullOrEmpty(Model.Photo))
+            <div class="col-md-6">
+                @if (Model.Photos != null && Model.Photos.Count > 0)
                 {
-                    <img src="~/images/products/@Model.Photo" class="img-fluid" />
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.Photos.Count; i++)
+                            {
+                                var p = Model.Photos[i];
+                                <div class="carousel-item @(i==0?"active":"")">
+                                    <img src="@Url.Content("~/admin-images/products/" + p.Photo)" class="d-block w-100" alt="@p.Description" onerror="this.onerror=null;this.src='@Url.Content("~/admin-images/products/nophoto.png")'" />
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <img src="@Url.Content("~/admin-images/products/" + (Model.Product.Photo ?? "nophoto.png"))" class="img-fluid" onerror="this.onerror=null;this.src='@Url.Content("~/admin-images/products/nophoto.png")'" />
                 }
             </div>
-            <div class="col-md-8">
-                <p><strong>Giá:</strong> @Model.Price</p>
-                <p>@Model.ProductDescription</p>
+            <div class="col-md-6">
+                <h2>@Model.Product.ProductName</h2>
+                <p class="text-muted">@Model.Product.ProductDescription</p>
+                <p><strong>Giá:</strong> <span class="text-primary">@Model.Product.Price.ToString("C")</span></p>
+                <p><strong>Ðõn v?:</strong> @Model.Product.Unit</p>
+                <p><strong>Kho:</strong> @Model.Product.Quantity</p>
+                @if (!string.IsNullOrEmpty(Model.CategoryName)) { <p><strong>Lo?i:</strong> @Model.CategoryName</p> }
+                @if (!string.IsNullOrEmpty(Model.SupplierName)) { <p><strong>Nhà cung c?p:</strong> @Model.SupplierName</p> }
+
                 <form id="formAddToCart" method="post" asp-controller="Cart" asp-action="Add">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="productId" value="@Model.ProductID" />
-                    <div class="input-group mb-3" style="max-width:160px;">
+                    <input type="hidden" name="productId" value="@Model.Product.ProductID" />
+                    <div class="input-group mb-3" style="max-width:200px;">
                         <input type="number" name="qty" value="1" min="1" class="form-control" />
                         <button class="btn btn-success">Thêm vào gi?</button>
                     </div>
                 </form>
+
+                @if (Model.Attributes != null && Model.Attributes.Count > 0)
+                {
+                    <h5>Thông s? k? thu?t</h5>
+                    <table class="table table-sm">
+                        <tbody>
+                            @foreach(var a in Model.Attributes)
+                            {
+                                <tr>
+                                    <td style="width:35%">@a.AttributeName</td>
+                                    <td>@Html.Raw(a.AttributeValue)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
             </div>
         </div>
-    }
-    else
-    {
-        <div class="alert alert-warning">S?n ph?m không t?n t?i</div>
-    }
+    </div>
 </div>
 
 @section Scripts {

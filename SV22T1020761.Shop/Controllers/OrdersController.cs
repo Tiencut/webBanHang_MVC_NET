@@ -12,7 +12,15 @@ namespace SV22T1020761.Shop.Controllers
     {
         public IActionResult Index(int page = 1, int pageSize = 10)
         {
-            var input = new PaginationSearchInput { Page = page, PageSize = pageSize };
+            var input = new OrderSearchInput { Page = page, PageSize = pageSize };
+
+            // try to filter by current customer if available
+            var ua = SV22T1020761.Shop.Services.AccountService.GetUser(User?.Identity?.Name);
+            if (ua != null && int.TryParse(ua.UserId, out var cid))
+            {
+                input.CustomerID = cid;
+            }
+
             var model = SalesDataService.ListOrders(input);
             return View(model);
         }

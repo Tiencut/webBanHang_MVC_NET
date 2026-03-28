@@ -3,6 +3,7 @@ using SV22T1020761.DataLayers.SQLServer.Catalog;
 using SV22T1020761.Models.Catalog;
 using SV22T1020761.Models.Common;
 using System; // for Exception
+using System.Collections.Generic;
 
 namespace SV22T1020761.BusinessLayers
 {
@@ -13,11 +14,13 @@ namespace SV22T1020761.BusinessLayers
     {
         private static CategoryRepository _categoryRepo;
         private static ProductRepository _productRepo;
+        private static SupplierRepository _supplierRepo;
 
         static CatalogDataService()
         {
             _categoryRepo = new CategoryRepository(Configuration.ConnectionString);
             _productRepo = new ProductRepository(Configuration.ConnectionString);
+            _supplierRepo = new SupplierRepository(Configuration.ConnectionString);
         }
 
         public static PagedResult<Category> ListCategories(PaginationSearchInput input)
@@ -54,6 +57,30 @@ namespace SV22T1020761.BusinessLayers
         public static Product GetProduct(int id)
         {
             return _productRepo.GetAsync(id).GetAwaiter().GetResult() ?? new Product();
+        }
+
+        public static List<ProductPhoto> ListProductPhotos(int productId)
+        {
+            return _productRepo.ListPhotosAsync(productId).GetAwaiter().GetResult();
+        }
+
+        public static List<ProductAttribute> ListAttributes(int productId)
+        {
+            return _productRepo.ListAttributesAsync(productId).GetAwaiter().GetResult();
+        }
+
+        public static string? GetCategoryName(int? categoryId)
+        {
+            if (categoryId == null || categoryId == 0) return null;
+            var c = _categoryRepo.GetAsync(categoryId.Value).GetAwaiter().GetResult();
+            return c?.CategoryName;
+        }
+
+        public static string? GetSupplierName(int? supplierId)
+        {
+            if (supplierId == null || supplierId == 0) return null;
+            var s = _supplierRepo.GetAsync(supplierId.Value).GetAwaiter().GetResult();
+            return s?.SupplierName;
         }
 
         public static void UpdateProduct(Product product)

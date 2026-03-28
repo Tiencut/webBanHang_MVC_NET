@@ -17,5 +17,10 @@ namespace SV22T1020761.DataLayers.Interfaces
         /// </param>
         /// <returns></returns>
         Task<bool> ValidateEmailAsync(string email, int id = 0);
+
+        /// <summary>
+        /// Lấy khách hàng theo email
+        /// </summary>
+        Task<Customer?> GetByEmailAsync(string email);
     }
 }

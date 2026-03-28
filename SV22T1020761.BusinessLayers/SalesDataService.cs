@@ -10,16 +10,19 @@ namespace SV22T1020761.BusinessLayers
     {
         public static PagedResult<OrderViewInfo> ListOrders(PaginationSearchInput input)
         {
-            var repo = new OrderRepository(Configuration.ConnectionString);
             var orderInput = new OrderSearchInput
             {
                 Page = input?.Page ?? 1,
                 PageSize = input?.PageSize ?? 10,
-                SearchValue = input?.SearchValue ?? string.Empty,
-                // leave other filters to defaults
+                SearchValue = input?.SearchValue ?? string.Empty
             };
-            // call repository synchronously (repo has async method)
-            var task = repo.ListAsync(orderInput);
+            return ListOrders(orderInput);
+        }
+
+        public static PagedResult<OrderViewInfo> ListOrders(OrderSearchInput input)
+        {
+            var repo = new OrderRepository(Configuration.ConnectionString);
+            var task = repo.ListAsync(input);
             task.Wait();
             return task.Result;
         }

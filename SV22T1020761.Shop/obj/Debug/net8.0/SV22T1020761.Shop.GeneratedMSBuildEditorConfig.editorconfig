@@ -72,10 +72,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/TienCut/codeHoc/laptrinhweb_nhom1_hk3_20242025-main/SV22T1020761/SV22T1020761.Shop/Views/Products/_ProductQuickView.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcX1Byb2R1Y3RRdWlja1ZpZXcuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/TienCut/codeHoc/laptrinhweb_nhom1_hk3_20242025-main/SV22T1020761/SV22T1020761.Shop/Views/Products/_ProductTable.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcX1Byb2R1Y3RUYWJsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -86,6 +82,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/TienCut/codeHoc/laptrinhweb_nhom1_hk3_20242025-main/SV22T1020761/SV22T1020761.Shop/Views/Shared/_CartSummary.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9DYXJ0U3VtbWFyeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/TienCut/codeHoc/laptrinhweb_nhom1_hk3_20242025-main/SV22T1020761/SV22T1020761.Shop/Views/Shared/_ProductGrid.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Qcm9kdWN0R3JpZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/TienCut/codeHoc/laptrinhweb_nhom1_hk3_20242025-main/SV22T1020761/SV22T1020761.Shop/Views/Shared/_ProductQuickView.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Qcm9kdWN0UXVpY2tWaWV3LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/TienCut/codeHoc/laptrinhweb_nhom1_hk3_20242025-main/SV22T1020761/SV22T1020761.Shop/Views/Shared/_ValidationScriptsPartial.cshtml]

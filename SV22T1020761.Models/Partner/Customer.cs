@@ -41,6 +41,10 @@ namespace SV22T1020761.Models.Partner
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         /// <summary>
+        /// Mật khẩu (lưu theo repository hiện tại expects plain text)
+        /// </summary>
+        public string? Password { get; set; }
+        /// <summary>
         /// Khách hàng hiện có bị khóa hay không?
         /// </summary>
         public bool? IsLocked { get; set; }

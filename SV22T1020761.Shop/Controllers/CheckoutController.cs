@@ -44,6 +44,17 @@ namespace SV22T1020761.Shop.Controllers
                 TotalAmount = CartHelper.GetCartSummary(HttpContext.Session).Total
             };
 
+            // Try to set CustomerID if we can map current user to a customer
+            try
+            {
+                var ua = SV22T1020761.Shop.Services.AccountService.GetUser(User?.Identity?.Name);
+                if (ua != null && int.TryParse(ua.UserId, out var cid))
+                {
+                    order.CustomerID = cid;
+                }
+            }
+            catch { /* ignore */ }
+
             var details = new List<OrderDetail>();
             foreach (var it in cart)
             {

@@ -8,7 +8,7 @@
         @Html.AntiForgeryToken()
         <div class="row mb-3">
             <div class="col-md-4">
-                <input type="text" name="SearchValue" value="@ViewBag.FilterSearchValue" class="form-control" placeholder="T?m ki?m s?n ph?m..." />
+                <input type="text" name="SearchValue" value="@ViewBag.FilterSearchValue" class="form-control" placeholder="T?m ki?m s?n ph?m..." autofocus />
             </div>
             <div class="col-md-3">
                 <select name="CategoryID" class="form-select">
@@ -36,7 +36,7 @@
     </form>
 
     <div id="productTableContainer">
-        @Html.Partial("_ProductTable", Model)
+        @Html.Partial("_ProductGrid", Model)
     </div>
 </div>
 
@@ -68,6 +68,8 @@
                     if (res.ok) {
                         var html = await res.text();
                         document.getElementById('productTableContainer').innerHTML = html;
+                        if (window.focusFirstInvalid) window.focusFirstInvalid();
+                        if (window.initTooltips) window.initTooltips('#productTableContainer');
                         var searchVal = form.querySelector('input[name="SearchValue"]')?.value || '';
                         var params = new URLSearchParams();
                         if (searchVal) params.set('searchValue', searchVal);

@@ -19,5 +19,9 @@ namespace SV22T1020761.Models.Sales
         /// Đến ngày (ngày lập đơn hàng)
         /// </summary>
         public DateTime? DateTo { get; set; }
+        /// <summary>
+        /// Lọc theo khách hàng
+        /// </summary>
+        public int? CustomerID { get; set; }
     }
 }

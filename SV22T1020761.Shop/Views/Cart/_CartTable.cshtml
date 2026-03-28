@@ -1,4 +1,5 @@
 @model System.Collections.Generic.List<SV22T1020761.Shop.AppCodes.CartItem>
+@using System.Linq
 <table class="table">
     <thead>
         <tr>
@@ -35,3 +36,16 @@
         }
     </tbody>
 </table>
+
+@{
+    var total = Model.Sum(i => i.Price * i.Qty);
+}
+<div class="d-flex justify-content-between align-items-center border-top pt-3">
+    <div>
+        <div class="h5 mb-0">T?ng: <strong class="text-primary">@total.ToString("C")</strong></div>
+        <div class="text-muted small">(Chýa bao g?m phí v?n chuy?n)</div>
+    </div>
+    <div>
+        <a class="btn btn-success btn-lg" asp-controller="Checkout" asp-action="Index">Ð?t mua hàng</a>
+    </div>
+</div>

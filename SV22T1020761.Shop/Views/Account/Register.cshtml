@@ -4,26 +4,43 @@
     ViewData["Title"] = "Register";
 }
 
-<h1>Register</h1>
+<div class="auth-card">
+    <h1>Register</h1>
 
-<form asp-action="Register" method="post">
-    <div class="form-group">
-        <label asp-for="UserName"></label>
-        <input asp-for="UserName" class="form-control" />
-        <span asp-validation-for="UserName" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" name="password" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+    <form asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+        <div class="form-group mb-3">
+            <label asp-for="UserName"></label>
+            <input asp-for="UserName" class="form-control" placeholder="Tên ðãng nh?p" autofocus />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" placeholder="email@domain.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label for="password">M?t kh?u</label>
+            <input type="password" name="password" class="form-control" placeholder="T?i thi?u 6 k? t?" />
+            <div class="form-help">M?t kh?u nên g?m ch?, s? và k? t? ð?c bi?t.</div>
+        </div>
+        <div class="form-group mb-3">
+            <label for="confirmPassword">Xác nh?n m?t kh?u</label>
+            <input type="password" name="confirmPassword" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Ðãng k?</button>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.querySelector('form[asp-action="Register"]') || document.querySelector('form');
+            form?.addEventListener('submit', function () {
+                setTimeout(function(){ window.focusFirstInvalid && window.focusFirstInvalid(); }, 50);
+            });
+        });
+    </script>
 }

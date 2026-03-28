@@ -29,6 +29,7 @@ namespace SV22T1020761.DataLayers.SQLServer.Sales
             if (input.Status >= 0) { where.Add("o.Status = @Status"); parameters.Add("Status", input.Status); }
             if (input.DateFrom != null) { where.Add("o.OrderTime >= @DateFrom"); parameters.Add("DateFrom", input.DateFrom); }
             if (input.DateTo != null) { where.Add("o.OrderTime <= @DateTo"); parameters.Add("DateTo", input.DateTo); }
+            if (input.CustomerID != null && input.CustomerID > 0) { where.Add("o.CustomerID = @CustomerID"); parameters.Add("CustomerID", input.CustomerID); }
 
             string whereClause = where.Count > 0 ? "WHERE " + string.Join(" AND ", where) : string.Empty;
 

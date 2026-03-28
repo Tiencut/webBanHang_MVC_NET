@@ -20,14 +20,52 @@ namespace SV22T1020761.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(UserAccount model, string password)
+        public async Task<IActionResult> Register(UserAccount model, string password, string confirmPassword)
         {
-            if (ModelState.IsValid)
+            // basic server-side validation
+            if (string.IsNullOrWhiteSpace(model?.UserName))
+            {
+                ModelState.AddModelError("UserName", "Tên ðãng nh?p là b?t bu?c.");
+            }
+            if (string.IsNullOrWhiteSpace(model?.Email))
+            {
+                ModelState.AddModelError("Email", "Email là b?t bu?c.");
+            }
+            if (string.IsNullOrEmpty(password) || password.Length < 6)
+            {
+                ModelState.AddModelError("", "M?t kh?u ph?i có ít nh?t 6 k? t?.");
+            }
+            if (password != confirmPassword)
+            {
+                ModelState.AddModelError("", "M?t kh?u xác nh?n không kh?p.");
+            }
+
+            // check existing user
+            var existing = AccountService.GetUser(model?.UserName);
+            if (existing != null)
+            {
+                ModelState.AddModelError("UserName", "Tên ðãng nh?p ð? t?n t?i.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Ðãng k? th?t b?i. Vui l?ng s?a các l?i r?i th? l?i.";
+                return View(model);
+            }
+
+            try
             {
                 await AccountService.RegisterAsync(model, password);
+                TempData["Success"] = "Ðãng k? thành công. Vui l?ng ðãng nh?p.";
                 return RedirectToAction("Login");
             }
-            return View(model);
+            catch (System.Exception ex)
+            {
+                // log if you have logger
+                ModelState.AddModelError("", "Có l?i khi x? l? ðãng k?. Vui l?ng th? l?i sau.");
+                TempData["Error"] = "Ðãng k? th?t b?i do l?i h? th?ng.";
+                return View(model);
+            }
         }
 
         [HttpGet]
@@ -47,10 +85,13 @@ namespace SV22T1020761.Shop.Controllers
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                TempData["Success"] = "Ðãng nh?p thành công.";
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError("", "Invalid username or password.");
+            // keep generic message for security
+            ModelState.AddModelError("", "Tên ðãng nh?p ho?c m?t kh?u không ðúng.");
+            TempData["Error"] = "Tên ðãng nh?p ho?c m?t kh?u không ðúng.";
             return View();
         }
 
@@ -67,11 +108,25 @@ namespace SV22T1020761.Shop.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Profile(UserAccount model)
         {
-            if (ModelState.IsValid)
+            // ensure username not tampered
+            var currentUser = User.Identity?.Name;
+            if (string.IsNullOrEmpty(currentUser)) return Forbid();
+
+            model.UserName = currentUser; // enforce
+
+            if (string.IsNullOrWhiteSpace(model.Email))
             {
-                AccountService.UpdateUser(model);
-                ViewBag.Message = "Profile updated successfully.";
+                ModelState.AddModelError("Email", "Email là b?t bu?c.");
             }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "C?p nh?t th?t b?i. Vui l?ng s?a các l?i.";
+                return View(model);
+            }
+
+            AccountService.UpdateUser(model);
+            TempData["Success"] = "C?p nh?t thông tin cá nhân thành công.";
             return View(model);
         }
 
@@ -85,17 +140,33 @@ namespace SV22T1020761.Shop.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ChangePassword(string oldPassword, string newPassword)
+        public IActionResult ChangePassword(string oldPassword, string newPassword, string confirmPassword)
         {
             var username = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            {
+                ModelState.AddModelError("", "M?t kh?u m?i ph?i có ít nh?t 6 k? t?.");
+                TempData["Error"] = "M?t kh?u m?i ph?i có ít nh?t 6 k? t?.";
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ModelState.AddModelError("", "Xác nh?n m?t kh?u m?i không kh?p.");
+                TempData["Error"] = "Xác nh?n m?t kh?u m?i không kh?p.";
+                return View();
+            }
+
             if (username != null && AccountService.ValidatePassword(username, oldPassword))
             {
                 AccountService.ChangePassword(username, newPassword);
                 ViewBag.Message = "Password changed successfully.";
+                TempData["Success"] = "Ð?i m?t kh?u thành công.";
                 return RedirectToAction("Profile");
             }
 
-            ModelState.AddModelError("", "Old password is incorrect.");
+            ModelState.AddModelError("", "M?t kh?u c? không ðúng.");
+            TempData["Error"] = "M?t kh?u c? không ðúng.";
             return View();
         }
 
@@ -103,6 +174,7 @@ namespace SV22T1020761.Shop.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["Success"] = "B?n ð? ðãng xu?t.";
             return RedirectToAction("Login");
         }
     }

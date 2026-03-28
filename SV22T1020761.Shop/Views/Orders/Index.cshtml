@@ -1,4 +1,5 @@
 @model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Sales.OrderViewInfo>
+@using SV22T1020761.Models.Sales
 @{
     ViewData["Title"] = "Ðõn hàng c?a tôi";
 }
@@ -16,7 +17,7 @@
                     <td>@o.OrderID</td>
                     <td>@o.OrderTime</td>
                     <td>@o.CustomerName</td>
-                    <td>@o.Status</td>
+                    <td>@(((OrderStatusEnum)o.Status).GetDescription())</td>
                     <td>@o.TotalAmount</td>
                     <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.OrderID" class="btn btn-sm btn-primary">Chi ti?t</a></td>
                 </tr>

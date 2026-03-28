@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SV22T1020761.BusinessLayers;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using SV22T1020761.Shop.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 Configuration.Initialize(connectionString);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// Register exception filter
+builder.Services.AddScoped<HandleExceptionFilter>();
+
+// Add services to the container (register global filter via AddControllersWithViews)
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.AddService<HandleExceptionFilter>();
+});
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options => {
     options.Cookie.HttpOnly = true;
@@ -29,6 +38,25 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseStaticFiles();
+
+// Serve images from Admin project's wwwroot under /admin-images (so Shop can reference admin images)
+try
+{
+    var adminImagesPath = Path.Combine(builder.Environment.ContentRootPath, "..", "SV22T1020761.Admin", "wwwroot", "images");
+    if (Directory.Exists(adminImagesPath))
+    {
+        var provider = new PhysicalFileProvider(adminImagesPath);
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = provider,
+            RequestPath = "/admin-images"
+        });
+    }
+}
+catch
+{
+    // ignore if path cannot be configured
+}
 
 // Ensure text responses include charset=utf-8 to avoid browser encoding issues
 app.Use(async (context, next) =>

@@ -1,0 +1,125 @@
+﻿@model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Catalog.Product>
+@using System.IO
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    @if (Model?.DataItems != null && Model.DataItems.Count > 0)
+    {
+        foreach (var p in Model.DataItems)
+        {
+            <div class="col">
+                <div class="product-card h-100">
+                    @if (!string.IsNullOrEmpty(p.Photo))
+                    {
+                        <span class="product-badge">@((p.IsSelling) ? "Bán" : "Ngưng bán")</span>
+                    }
+                    <div class="product-actions">
+                        <a class="btn btn-sm btn-light" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductID" title="Xem chi tiết">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <button class="btn btn-sm btn-success" data-quickview="@p.ProductID" title="Xem nhanh">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                    </div>
+
+                    @{
+                        var adminUrlBase = Url.Content("~/admin-images/products/");
+                        var nophoto = Url.Content("~/admin-images/products/nophoto.png");
+                        var rawPhoto = (p.Photo ?? string.Empty).Trim();
+                        var photoName = System.IO.Path.GetFileName(rawPhoto);
+                        string imgUrl;
+
+                        if (!string.IsNullOrEmpty(photoName))
+                        {
+                            var adminImagesDir = System.IO.Path.Combine(Env.ContentRootPath, "..", "SV22T1020761.Admin", "wwwroot", "images", "products");
+                            var adminImagesPhysical = System.IO.Path.Combine(adminImagesDir, photoName);
+                            if (System.IO.File.Exists(adminImagesPhysical))
+                            {
+                                imgUrl = adminUrlBase + photoName;
+                            }
+                            else
+                            {
+                                var lower = photoName.ToLowerInvariant();
+                                var adminLower = System.IO.Path.Combine(adminImagesDir, lower);
+                                if (System.IO.File.Exists(adminLower)) imgUrl = adminUrlBase + lower;
+                                else imgUrl = nophoto;
+                            }
+                        }
+                        else
+                        {
+                            imgUrl = nophoto;
+                        }
+                    }
+
+                    <img loading="lazy" src="@imgUrl" alt="@p.ProductName" class="product-photo" onerror="this.onerror=null;this.src='@nophoto';" />
+
+                    <div class="card-body">
+                        <h5 class="card-title">@p.ProductName</h5>
+                        <p class="card-text">@(string.IsNullOrWhiteSpace(p.ProductDescription) ? "" : (p.ProductDescription.Length > 90 ? p.ProductDescription.Substring(0, 90) + "..." : p.ProductDescription))</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div class="price">@p.Price.ToString("C")</div>
+                            <div class="text-muted small">@p.Quantity.ToString() @p.Unit</div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductID">Chi tiết</a>
+                            <button class="btn btn-sm btn-primary btn-add-to-cart" data-product-id="@p.ProductID" title="Thêm vào giỏ hàng" aria-label="Thêm vào giỏ hàng" data-bs-toggle="tooltip">Thêm +</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12"><div class="alert alert-warning">Không có dữ liệu</div></div>
+    }
+</div>
+
+<nav>
+    <ul class="pagination justify-content-center mt-3 flex-wrap">
+        @{
+            var total = Model?.PageCount ?? 1;
+            var current = Model?.Page ?? 1;
+            int left = Math.Max(1, current - 2);
+            int right = Math.Min(total, current + 2);
+
+            void RenderPage(int i)
+            {
+                <li class="page-item @(i == current ? "active" : "")"><a class="page-link" href="#" data-page="@i">@i</a></li>;
+            }
+
+            // Prev
+            if (current > 1)
+            {
+                <li class="page-item"><a class="page-link" href="#" data-page="@(current-1)">Prev</a></li>;
+            }
+
+            // first
+            if (left > 1)
+            {
+                RenderPage(1);
+                if (left > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>;
+                }
+            }
+
+            for (int i = left; i <= right; i++) { RenderPage(i); }
+
+            if (right < total)
+            {
+                if (right < total - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>;
+                }
+                RenderPage(total);
+            }
+
+            // Next
+            if (current < total)
+            {
+                <li class="page-item"><a class="page-link" href="#" data-page="@(current+1)">Next</a></li>;
+            }
+        }
+    </ul>
+</nav>
+ 

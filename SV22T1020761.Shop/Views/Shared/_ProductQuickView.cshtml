@@ -1,9 +1,16 @@
 @model SV22T1020761.Models.Catalog.Product
 <div class="row">
     <div class="col-md-5">
+        @{
+            var nophoto = Url.Content("~/admin-images/products/nophoto.png");
+        }
         @if (!string.IsNullOrEmpty(Model.Photo))
         {
-            <img src="~/images/products/@Model.Photo" class="img-fluid" />
+            <img src="@Url.Content("~/admin-images/products/" + Model.Photo)" class="img-fluid" onerror="this.onerror=null;this.src='@nophoto'" />
+        }
+        else
+        {
+            <img src="@nophoto" class="img-fluid" />
         }
     </div>
     <div class="col-md-7">

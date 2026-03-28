@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using SV22T1020761.Models.Common;
 using SV22T1020761.Models.Catalog;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SV22T1020761.Shop.Controllers
 {
@@ -43,7 +45,7 @@ namespace SV22T1020761.Shop.Controllers
         public IActionResult Search(PaginationSearchInput input)
         {
             var result = SV22T1020761.BusinessLayers.CatalogDataService.ListProducts(input);
-            return PartialView("_ProductTable", result);
+            return PartialView("_ProductGrid", result);
         }
 
         // GET: /Products/Details/5
@@ -51,7 +53,22 @@ namespace SV22T1020761.Shop.Controllers
         {
             var product = SV22T1020761.BusinessLayers.CatalogDataService.GetProduct(id);
             if (product == null) return NotFound();
-            return View(product);
+
+            var photos = SV22T1020761.BusinessLayers.CatalogDataService.ListProductPhotos(id);
+            var attrs = SV22T1020761.BusinessLayers.CatalogDataService.ListAttributes(id);
+            var catName = SV22T1020761.BusinessLayers.CatalogDataService.GetCategoryName(product.CategoryID);
+            var supName = SV22T1020761.BusinessLayers.CatalogDataService.GetSupplierName(product.SupplierID);
+
+            var vm = new ProductDetailsViewModel
+            {
+                Product = product,
+                Photos = photos ?? new List<ProductPhoto>(),
+                Attributes = attrs ?? new List<ProductAttribute>(),
+                CategoryName = catName,
+                SupplierName = supName
+            };
+
+            return View(vm);
         }
 
         // GET: /Products/QuickView/5
