@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SV22T1020761.BusinessLayers;
 using SV22T1020761.Models.Common;
 using SV22T1020761.Models.Catalog;
@@ -53,16 +53,25 @@ namespace SV22T1020761.Admin.Controllers
         [HttpGet]
         public IActionResult Form(int? id, bool delete = false)
         {
-            if (id == null || id == 0)
+            try
             {
-                var model = new Product();
-                if (delete) return BadRequest();
-                return PartialView("_ProductForm", model);
+                if (id == null || id == 0)
+                {
+                    var model = new Product();
+                    if (delete) return BadRequest();
+                    return PartialView("_ProductForm", model);
+                }
+                var product = CatalogDataService.GetProduct(id.Value);
+                if (product == null) return NotFound();
+                if (delete) return PartialView("_ProductDelete", product);
+                return PartialView("_ProductForm", product);
             }
-            var product = CatalogDataService.GetProduct(id.Value);
-            if (product == null) return NotFound();
-            if (delete) return PartialView("_ProductDelete", product);
-            return PartialView("_ProductForm", product);
+            catch (System.Exception ex)
+            {
+                _logger?.LogError(ex, "Error loading form (Id={ProductId}, Delete={Delete})", id, delete);
+                TempData["Error"] = "Hệ thống đang bận. Vui lòng thử lại sau.";
+                return BadRequest();
+            }
         }
 
         // =====================================================
@@ -105,12 +114,21 @@ namespace SV22T1020761.Admin.Controllers
         // =====================================================
         public IActionResult Edit(int id)
         {
-            var product = CatalogDataService.GetProduct(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = CatalogDataService.GetProduct(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return View(product);
             }
-            return View(product);
+            catch (System.Exception ex)
+            {
+                _logger?.LogError(ex, "Error loading product for edit (Id={ProductId})", id);
+                TempData["Error"] = "Không thể tải sản phẩm. Vui lòng thử lại sau.";
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]

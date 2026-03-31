@@ -1,36 +1,48 @@
-@model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Catalog.Product>
+﻿@model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Catalog.Product>
 @{
-    ViewData["Title"] = "Danh s�ch s?n ph?m";
+    ViewData["Title"] = "Danh sách sản phẩm";
 }
 <div class="container">
     <h3>@ViewData["Title"]</h3>
     <form id="formSearch" method="post" asp-action="Search" asp-controller="Products">
         @Html.AntiForgeryToken()
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <input type="text" name="SearchValue" value="@ViewBag.FilterSearchValue" class="form-control" placeholder="T?m ki?m s?n ph?m..." autofocus />
+        <div class="row mb-3 g-3">
+            <div class="col-lg-5 col-md-4 col-sm-12">
+                <input type="text" name="SearchValue" value="@ViewBag.FilterSearchValue"
+                       class="form-control form-control-lg"
+                       placeholder="Tìm kiếm sản phẩm..."
+                       autofocus />
             </div>
-            <div class="col-md-3">
-                <select name="CategoryID" class="form-select">
-                    <option value="0">-- T?t c? lo?i --</option>
-                    @foreach(var c in (System.Collections.Generic.List<SV22T1020761.Models.Catalog.Category>)(ViewBag.Categories ?? new System.Collections.Generic.List<SV22T1020761.Models.Catalog.Category>()))
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <select name="CategoryID" class="form-select form-select-lg">
+                    <option value="0">-- Tất cả loại --</option>
+                    @foreach (var c in (System.Collections.Generic.List<SV22T1020761.Models.Catalog.Category>)(ViewBag.Categories ?? new System.Collections.Generic.List<SV22T1020761.Models.Catalog.Category>()))
                     {
-                        if (ViewBag.FilterCategoryId == c.CategoryID) {
+                        if (ViewBag.FilterCategoryId == c.CategoryID)
+                        {
                             <option value="@c.CategoryID" selected>@c.CategoryName</option>
-                        } else {
+                        }
+                        else
+                        {
                             <option value="@c.CategoryID">@c.CategoryName</option>
                         }
                     }
                 </select>
             </div>
-            <div class="col-md-2">
-                <input type="number" name="MinPrice" step="0.01" placeholder="Min" value="@ViewBag.FilterMinPrice" class="form-control" />
+            <div class="col-lg-2 col-md-2 col-sm-3">
+                <input type="number" name="MinPrice" step="0.01"
+                       placeholder="Min"
+                       value="@ViewBag.FilterMinPrice"
+                       class="form-control form-control-lg" />
             </div>
-            <div class="col-md-2">
-                <input type="number" name="MaxPrice" step="0.01" placeholder="Max" value="@ViewBag.FilterMaxPrice" class="form-control" />
+            <div class="col-lg-1 col-md-1 col-sm-3">
+                <input type="number" name="MaxPrice" step="0.01"
+                       placeholder="Max"
+                       value="@ViewBag.FilterMaxPrice"
+                       class="form-control form-control-lg" />
             </div>
-            <div class="col-md-1">
-                <button class="btn btn-primary">T?m</button>
+            <div class="col-lg-1 col-md-1 col-sm-12">
+                <button type="button" id="searchBtn" class="btn btn-primary btn-lg w-100 h-100">Tìm</button>
             </div>
         </div>
     </form>
@@ -42,14 +54,20 @@
 
 <!-- Modal for quick view -->
 <div class="modal fade" id="dialogModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content"></div>
-  </div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
-        function debounce(fn, delay) { var t; return function () { clearTimeout(t); t = setTimeout(fn, delay); }; }
+        function debounce(fn, delay) {
+            var t;
+            return function () {
+                clearTimeout(t);
+                t = setTimeout(fn, delay);
+            };
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             var form = document.getElementById('formSearch');
@@ -62,7 +80,11 @@
                 try {
                     var res = await fetch(form.action, {
                         method: 'POST',
-                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: {
+                            'RequestVerificationToken': token,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
                         body: data.toString()
                     });
                     if (res.ok) {
@@ -78,27 +100,16 @@
                     } else {
                         console.error('Search failed');
                     }
-                } catch (err) { console.error(err); }
+                } catch (err) {
+                    console.error(err);
+                }
             }
 
             var debounced = debounce(function () { doSearch(1); }, 300);
             input.addEventListener('keyup', debounced);
 
-            document.getElementById('productTableContainer').addEventListener('click', function (e) {
-                var target = e.target.closest('a[data-page]');
-                if (target) { e.preventDefault(); doSearch(target.getAttribute('data-page')); }
-
-                // quick view button
-                var qbtn = e.target.closest('button[data-quickview]');
-                if (qbtn) {
-                    var id = qbtn.getAttribute('data-quickview');
-                    fetch('/Products/QuickView/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                        .then(r => r.text()).then(html => {
-                            document.querySelector('#dialogModal .modal-content').innerHTML = html;
-                            var modal = new bootstrap.Modal(document.getElementById('dialogModal'));
-                            modal.show();
-                        });
-                }
+            document.getElementById('searchBtn').addEventListener('click', function () {
+                doSearch(1);
             });
         });
     </script>

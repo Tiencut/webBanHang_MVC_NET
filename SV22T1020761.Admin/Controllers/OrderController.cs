@@ -9,37 +9,45 @@ namespace SV22T1020761.Admin.Controllers
     {
         public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
         {
-            var input = new PaginationSearchInput
+            try
             {
-                SearchValue = searchValue,
-                Page = page,
-                PageSize = pageSize
-            };
-
-            var orders = SalesDataService.ListOrders(input);
-            var model = new PagedResult<Order>
-            {
-                Page = orders.Page,
-                PageSize = orders.PageSize,
-                RowCount = orders.RowCount,
-                DataItems = orders.DataItems.Select(order => new Order
+                var input = new PaginationSearchInput
                 {
-                    OrderID = order.OrderID,
-                    CustomerID = order.CustomerID,
-                    CustomerName = SalesDataService.GetCustomerName(order.CustomerID),
-                    OrderTime = order.OrderTime,
-                    DeliveryProvince = order.DeliveryProvince,
-                    DeliveryAddress = order.DeliveryAddress,
-                    EmployeeID = order.EmployeeID,
-                    AcceptTime = order.AcceptTime,
-                    ShipperID = order.ShipperID,
-                    ShippedTime = order.ShippedTime,
-                    FinishedTime = order.FinishedTime,
-                    Status = order.Status
-                }).ToList()
-            };
+                    SearchValue = searchValue,
+                    Page = page,
+                    PageSize = pageSize
+                };
 
-            return View(model);
+                var orders = SalesDataService.ListOrders(input);
+                var model = new PagedResult<Order>
+                {
+                    Page = orders.Page,
+                    PageSize = orders.PageSize,
+                    RowCount = orders.RowCount,
+                    DataItems = orders.DataItems.Select(order => new Order
+                    {
+                        OrderID = order.OrderID,
+                        CustomerID = order.CustomerID,
+                        CustomerName = SalesDataService.GetCustomerName(order.CustomerID),
+                        OrderTime = order.OrderTime,
+                        DeliveryProvince = order.DeliveryProvince,
+                        DeliveryAddress = order.DeliveryAddress,
+                        EmployeeID = order.EmployeeID,
+                        AcceptTime = order.AcceptTime,
+                        ShipperID = order.ShipperID,
+                        ShippedTime = order.ShippedTime,
+                        FinishedTime = order.FinishedTime,
+                        Status = order.Status
+                    }).ToList()
+                };
+
+                return View(model);
+            }
+            catch (System.Exception ex)
+            {
+                TempData["Error"] = "Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.";
+                return View(new PagedResult<Order> { Page = page, PageSize = pageSize, RowCount = 0, DataItems = new List<Order>() });
+            }
         }
 
         public IActionResult Create()
@@ -50,33 +58,57 @@ namespace SV22T1020761.Admin.Controllers
         [HttpPost]
         public IActionResult Create(Order order)
         {
-            if (ModelState.IsValid)
+            try
             {
-                SalesDataService.AddOrder(order);
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    SalesDataService.AddOrder(order);
+                    return RedirectToAction("Index");
+                }
+                return View(order);
             }
-            return View(order);
+            catch (System.Exception ex)
+            {
+                TempData["Error"] = "Không thể tạo đơn hàng. Vui lòng thử lại sau.";
+                return View(order);
+            }
         }
 
         public IActionResult Edit(int id)
         {
-            var order = SalesDataService.GetOrder(id);
-            if (order == null)
+            try
             {
-                return NotFound();
+                var order = SalesDataService.GetOrder(id);
+                if (order == null)
+                {
+                    return NotFound();
+                }
+                return View(order);
             }
-            return View(order);
+            catch (System.Exception ex)
+            {
+                TempData["Error"] = "Không thể tải đơn hàng. Vui lòng thử lại sau.";
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]
         public IActionResult Edit(Order order)
         {
-            if (ModelState.IsValid)
+            try
             {
-                SalesDataService.UpdateOrder(order);
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    SalesDataService.UpdateOrder(order);
+                    return RedirectToAction("Index");
+                }
+                return View(order);
             }
-            return View(order);
+            catch (System.Exception ex)
+            {
+                TempData["Error"] = "Không thể cập nhật đơn hàng. Vui lòng thử lại sau.";
+                return View(order);
+            }
         }
 
         public IActionResult Delete(int id)

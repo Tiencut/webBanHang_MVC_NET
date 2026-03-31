@@ -4,26 +4,28 @@
     ViewData["Title"] = "Ðõn hàng c?a tôi";
 }
 
-<h3>@ViewData["Title"]</h3>
-<div>
-    <table class="table">
-        <thead>
-            <tr><th>M?</th><th>Th?i gian</th><th>Khách hàng</th><th>Tr?ng thái</th><th>T?ng</th><th></th></tr>
-        </thead>
-        <tbody>
-            @foreach(var o in Model.DataItems)
-            {
-                <tr>
-                    <td>@o.OrderID</td>
-                    <td>@o.OrderTime</td>
-                    <td>@o.CustomerName</td>
-                    <td>@(((OrderStatusEnum)o.Status).GetDescription())</td>
-                    <td>@o.TotalAmount</td>
-                    <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.OrderID" class="btn btn-sm btn-primary">Chi ti?t</a></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="auth-card">
+    <h3>@ViewData["Title"]</h3>
+    <div>
+        <table class="table">
+            <thead>
+                <tr><th>M?</th><th>Th?i gian</th><th>Khách hàng</th><th>Tr?ng thái</th><th>T?ng</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach(var o in Model.DataItems)
+                {
+                    <tr>
+                        <td>@o.OrderID</td>
+                        <td>@o.OrderTime</td>
+                        <td>@o.CustomerName</td>
+                        <td>@(((OrderStatusEnum)o.Status).GetDescription())</td>
+                        <td>@o.TotalAmount</td>
+                        <td><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.OrderID" class="btn btn-sm btn-primary">Chi ti?t</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @section Scripts {

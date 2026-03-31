@@ -1,4 +1,4 @@
-﻿using SV22T1020761.BusinessLayers;
+using SV22T1020761.BusinessLayers;
 using SV22T1020761.Models.Common;
 using SV22T1020761.Models.Partner;
 using Microsoft.Extensions.Logging;

@@ -1,0 +1,7 @@
+﻿Kiểm tra mã hóa UTF-8
+
+Đây là file test chứa tiếng Việt có dấu:
+- Tiếng Việt: ă â đ ê ô ơ ư á à ạ ả ã ấ ầ ậ ẩ ẫ
+- Ví dụ câu: "Tôi đang kiểm tra xem ký tự tiếng Việt có hiển thị đúng không."
+
+Mở file này trong trình soạn thảo của bạn (VS/VSCode) và kiểm tra encoding ở góc phải dưới (VSCode) hoặc File → Save with Encoding (VS).
