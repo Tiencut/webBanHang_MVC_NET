@@ -35,7 +35,7 @@
                     <td class="text-center">@item.Unit</td>
                     <td class="text-center">@item.Quantity</td>
                     <td class="text-end">@item.SalePrice.ToString("N0")</td>
-                    <td class="text-end">@(item.Quantity * item.SalePrice).ToString("N0")</td>
+                    <td class="text-end">@((item.Quantity * item.SalePrice).ToString("N0"))</td>
                     <td class="text-end text-nowrap">
                         <a class="btn btn-sm btn-primary open-modal" href="~/Order/EditCartItem?productId=@item.ProductID" title="Sửa">
                             <i class="bi bi-pencil"></i>

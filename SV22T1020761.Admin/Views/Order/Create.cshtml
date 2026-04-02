@@ -155,8 +155,9 @@
             .then(response => response.text())
             .then(html => {
                 document.getElementById('productListContainer').innerHTML = html;
-                // Re-attach event listeners to new buttons
+                // Re-attach event listeners to new buttons and pagination links
                 attachAddToCartListeners();
+                attachPaginationListeners();
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -211,6 +212,23 @@
         });
     }
 
+    // Function to attach pagination event listeners
+    function attachPaginationListeners() {
+        document.querySelectorAll('.search-page-link').forEach(link => {
+            link.removeEventListener('click', handlePaginationClick);
+            link.addEventListener('click', handlePaginationClick);
+        });
+    }
+
+    // Handle pagination click
+    function handlePaginationClick(e) {
+        e.preventDefault();
+        const page = this.dataset.page;
+        if (page) {
+            searchProducts(parseInt(page));
+        }
+    }
+
     // Handle "Add to Cart" click
     function handleAddToCart(e) {
         e.preventDefault();
@@ -231,8 +249,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
-                // Refresh cart table WITHOUT reloading page
+                // Refresh cart table WITHOUT reloading page (no alert)
                 refreshCartTable();
             } else {
                 alert('Lỗi: ' + data.message);

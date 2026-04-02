@@ -180,7 +180,11 @@ namespace SV22T1020761.Admin.Controllers
             {
                 var product = CatalogDataService.GetProduct(productID);
                 if (product == null)
-                    return NotFound();
+                    return Json(new { success = false, message = "Sản phẩm không tồn tại" });
+
+                System.Diagnostics.Debug.WriteLine($"=== ADD TO CART DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"ProductID: {productID}");
+                System.Diagnostics.Debug.WriteLine($"Product from DB: {product.ProductName}, Price: {product.Price}, Unit: {product.Unit}, Photo: {product.Photo}");
 
                 var item = new OrderDetailViewInfo
                 {
@@ -192,11 +196,25 @@ namespace SV22T1020761.Admin.Controllers
                     Photo = product.Photo
                 };
 
+                System.Diagnostics.Debug.WriteLine($"Item before AddCartItem: ProductName={item.ProductName}, Quantity={item.Quantity}, SalePrice={item.SalePrice}, Unit={item.Unit}");
+
                 AppCodes.ShoppingCartService.AddCartItem(item);
+
+                // Verify what's in cart after add
+                var cart = AppCodes.ShoppingCartService.GetShoppingCart();
+                System.Diagnostics.Debug.WriteLine($"Cart now has {cart.Count} items");
+                foreach (var cartItem in cart)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - ProductID: {cartItem.ProductID}, ProductName: {cartItem.ProductName}, Qty: {cartItem.Quantity}, Price: {cartItem.SalePrice}");
+                }
+                System.Diagnostics.Debug.WriteLine($"=== END DEBUG ===");
+
                 return Json(new { success = true, message = "Thêm vào giỏ hàng thành công" });
             }
             catch (System.Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR in AddToCart: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                 return Json(new { success = false, message = "Lỗi khi thêm vào giỏ hàng: " + ex.Message });
             }
         }
@@ -340,7 +358,75 @@ namespace SV22T1020761.Admin.Controllers
         public IActionResult GetCartTable()
         {
             var cart = AppCodes.ShoppingCartService.GetShoppingCart();
+            // Debug: Log cart data
+            foreach (var item in cart)
+            {
+                System.Diagnostics.Debug.WriteLine($"Cart Item - ProductID: {item.ProductID}, ProductName: {item.ProductName ?? "NULL"}, Quantity: {item.Quantity}, SalePrice: {item.SalePrice}, Unit: {item.Unit ?? "NULL"}");
+            }
             return PartialView("_CartTable", cart);
+        }
+
+        /// <summary>
+        /// Hiển thị form sửa số lượng sản phẩm trong giỏ hàng
+        /// </summary>
+        [HttpGet]
+        public IActionResult EditCartItem(int productID)
+        {
+            var item = AppCodes.ShoppingCartService.GetCartItem(productID);
+            if (item == null)
+                return NotFound();
+            
+            return PartialView("_EditCartItem", item);
+        }
+
+        /// <summary>
+        /// Cập nhật số lượng sản phẩm trong giỏ hàng
+        /// </summary>
+        [HttpPost]
+        public IActionResult EditCartItem(int productID, int quantity, decimal salePrice)
+        {
+            try
+            {
+                if (quantity <= 0)
+                    return BadRequest("Số lượng phải lớn hơn 0");
+
+                AppCodes.ShoppingCartService.UpdateCartItem(productID, quantity, salePrice);
+                return Json(new { success = true, message = "Cập nhật giỏ hàng thành công" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Hiển thị dialog xác nhận xóa sản phẩm khỏi giỏ hàng
+        /// </summary>
+        [HttpGet]
+        public IActionResult DeleteCartItem(int productID)
+        {
+            var item = AppCodes.ShoppingCartService.GetCartItem(productID);
+            if (item == null)
+                return NotFound();
+            
+            return PartialView("_DeleteCartItem", item);
+        }
+
+        /// <summary>
+        /// Xóa sản phẩm khỏi giỏ hàng
+        /// </summary>
+        [HttpPost]
+        public IActionResult DeleteCartItem(int productID, string confirm)
+        {
+            try
+            {
+                AppCodes.ShoppingCartService.RemoveCartItem(productID);
+                return Json(new { success = true, message = "Xóa khỏi giỏ hàng thành công" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
         }
     }
 }

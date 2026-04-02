@@ -43,18 +43,35 @@ namespace SV22T1020761.Admin.AppCodes
         /// <param name="item"></param>
         public static void AddCartItem(OrderDetailViewInfo item)
         {
+            System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Input: ProductID={item.ProductID}, ProductName={item.ProductName ?? "NULL"}, Qty={item.Quantity}, Price={item.SalePrice}");
+            
             var cart = GetShoppingCart();
+            System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Cart before add: {cart.Count} items");
+            
             var existsItem = cart.Find(m => m.ProductID == item.ProductID);
             if (existsItem == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Product is new, adding to cart");
                 cart.Add(item);
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Product exists, updating quantity from {existsItem.Quantity} to {existsItem.Quantity + item.Quantity}");
                 existsItem.Quantity += item.Quantity;
                 existsItem.SalePrice = item.SalePrice;
             }
+            
+            System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Cart after add: {cart.Count} items");
+            System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Saving to session...");
             ApplicationContext.SetSessionData(CART, cart);
+            
+            // Verify what was saved
+            var cartAfterSave = GetShoppingCart();
+            System.Diagnostics.Debug.WriteLine($"[ShoppingCartService.AddCartItem] Cart verified from session: {cartAfterSave.Count} items");
+            foreach (var verifyItem in cartAfterSave)
+            {
+                System.Diagnostics.Debug.WriteLine($"  - ProductID: {verifyItem.ProductID}, ProductName: {verifyItem.ProductName ?? "NULL"}, Qty: {verifyItem.Quantity}");
+            }
         }
         /// <summary>
         /// Cập nhật số lượng và giá của một mặt hàng trong giỏ hàng

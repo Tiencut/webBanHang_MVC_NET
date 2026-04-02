@@ -1,0 +1,96 @@
+@model SV22T1020761.Models.Sales.OrderDetailViewInfo
+
+<div class="modal-header">
+    <h5 class="modal-title">Sửa thông tin mặt hàng</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <form id="editCartForm">
+        <input type="hidden" name="productID" value="@Model.ProductID" />
+        
+        <div class="mb-3">
+            <label class="form-label">Tên mặt hàng</label>
+            <input type="text" class="form-control" value="@Model.ProductName" disabled />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label">Đơn vị</label>
+                <input type="text" class="form-control" value="@Model.Unit" disabled />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Giá (VNĐ)</label>
+                <input type="number" class="form-control money-input" name="salePrice" 
+                       value="@Model.SalePrice" step="1000" min="0" required />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Số lượng</label>
+            <input type="number" class="form-control" name="quantity" 
+                   value="@Model.Quantity" min="1" required />
+        </div>
+
+        <div class="alert alert-info small">
+            <strong>Tổng tiền:</strong> <span id="totalPrice">@((Model.Quantity * Model.SalePrice).ToString("N0"))</span> VNĐ
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+    <button type="button" class="btn btn-primary" onclick="handleEditCartSubmit()">Cập nhật</button>
+</div>
+
+<script>
+    // Calculate total price when quantity or price changes
+    document.querySelectorAll('#editCartForm input[name="quantity"], #editCartForm input[name="salePrice"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const quantity = parseInt(document.querySelector('input[name="quantity"]').value) || 0;
+            const salePrice = parseInt(document.querySelector('input[name="salePrice"]').value) || 0;
+            const total = quantity * salePrice;
+            document.getElementById('totalPrice').textContent = total.toLocaleString('vi-VN');
+        });
+    });
+
+    function handleEditCartSubmit() {
+        const form = document.getElementById('editCartForm');
+        const productID = parseInt(form.querySelector('input[name="productID"]').value);
+        const quantity = parseInt(form.querySelector('input[name="quantity"]').value);
+        const salePrice = parseInt(form.querySelector('input[name="salePrice"]').value);
+
+        if (quantity <= 0) {
+            alert('Số lượng phải lớn hơn 0');
+            return;
+        }
+
+        fetch('@Url.Action("EditCartItem", "Order")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                productID: productID,
+                quantity: quantity,
+                salePrice: salePrice
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close modal and refresh cart
+                document.getElementById('dialogModal').addEventListener('hidden.bs.modal', function() {
+                    refreshCartTable();
+                }, { once: true });
+                bootstrap.Modal.getInstance(document.getElementById('dialogModal')).hide();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Lỗi: ' + error.message);
+        });
+    }
+</script>

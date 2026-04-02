@@ -1,0 +1,51 @@
+@model SV22T1020761.Models.Sales.OrderDetailViewInfo
+
+<div class="modal-header bg-danger text-white">
+    <h5 class="modal-title">Xác nhận xóa</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <p>Bạn có chắc muốn xóa sản phẩm <strong>@Model.ProductName</strong> khỏi giỏ hàng?</p>
+    <div class="alert alert-info small">
+        <strong>Số lượng:</strong> @Model.Quantity @Model.Unit<br/>
+        <strong>Giá:</strong> @Model.SalePrice.ToString("N0") VNĐ<br/>
+        <strong>Thành tiền:</strong> @((Model.Quantity * Model.SalePrice).ToString("N0")) VNĐ
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+    <button type="button" class="btn btn-danger" onclick="handleDeleteCartSubmit(@Model.ProductID)">Xóa khỏi giỏ</button>
+</div>
+
+<script>
+    function handleDeleteCartSubmit(productID) {
+        fetch('@Url.Action("DeleteCartItem", "Order")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                productID: productID,
+                confirm: true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close modal and refresh cart
+                document.getElementById('dialogModal').addEventListener('hidden.bs.modal', function() {
+                    refreshCartTable();
+                }, { once: true });
+                bootstrap.Modal.getInstance(document.getElementById('dialogModal')).hide();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Lỗi: ' + error.message);
+        });
+    }
+</script>
