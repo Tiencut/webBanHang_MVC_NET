@@ -1,5 +1,6 @@
 @{
     ViewData["Title"] = "Login";
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
 }
 
 <div class="auth-card">
@@ -20,6 +21,10 @@
             <input type="checkbox" name="rememberMe" class="form-check-input" id="rememberMe" />
             <label class="form-check-label" for="rememberMe">Remember me</label>
         </div>
+        @if (!string.IsNullOrEmpty(returnUrl))
+        {
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+        }
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
 </div>

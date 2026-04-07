@@ -40,8 +40,11 @@ namespace SV22T1020761.Shop.Controllers
             
             if (ua == null || !int.TryParse(ua.UserId, out var customerId))
             {
-                System.Diagnostics.Debug.WriteLine("Returning Unauthorized: user not authenticated");
-                return Unauthorized();
+                // User not logged in - save pending product to session
+                HttpContext.Session.SetInt32("PendingProductId", productId);
+                HttpContext.Session.SetInt32("PendingProductQty", qty);
+                System.Diagnostics.Debug.WriteLine("Returning requiresLogin - saved to session");
+                return Json(new { requiresLogin = true });
             }
 
             try

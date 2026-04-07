@@ -55,7 +55,7 @@ window.focusFirstInvalid = function() {
             // try to focus associated input
             var id = span.getAttribute('data-valmsg-for');
             if (id) {
-                var el = document.getElementById(id) || document.querySelector('[name="'+id+'"]');
+                var el = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
                 if (el) { el.focus(); return; }
             }
             // fallback: focus next input
@@ -73,7 +73,7 @@ window.initTooltips = function(container) {
         var root = container ? (typeof container === 'string' ? document.querySelector(container) : container) : document;
         if (!root) return;
         var els = root.querySelectorAll('[data-bs-toggle="tooltip"]');
-        els.forEach(function(el){
+        els.forEach(function(el) {
             // Avoid double initialization: store instance
             if (!el._bs_tooltip) {
                 el._bs_tooltip = new bootstrap.Tooltip(el);
@@ -88,9 +88,9 @@ window.initTooltips = function(container) {
 (function observeModal() {
     var modalContent = document.querySelector('#dialogModal .modal-content');
     if (!modalContent) return;
-    var mo = new MutationObserver(function(mutations){
-        mutations.forEach(function(m){
-            if (m.addedNodes && m.addedNodes.length>0) {
+    var mo = new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+            if (m.addedNodes && m.addedNodes.length > 0) {
                 window.focusFirstInvalid && window.focusFirstInvalid();
                 window.initTooltips && window.initTooltips(modalContent);
             }
@@ -100,14 +100,14 @@ window.initTooltips = function(container) {
 })();
 
 // Delegated handlers for product container: pagination clicks, add-to-cart buttons, quickview
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     // init tooltips on load
     window.initTooltips && window.initTooltips();
 
     var container = document.getElementById('productTableContainer') || document.getElementById('homeFeatured');
     if (!container) return;
 
-    container.addEventListener('click', async function (e) {
+    container.addEventListener('click', async function(e) {
         // pagination
         var pageLink = e.target.closest('a.page-link');
         if (pageLink && pageLink.dataset.page) {
@@ -119,11 +119,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 var inputPage = form.querySelector('input[name="Page"]');
                 if (!inputPage) {
                     inputPage = document.createElement('input');
-                    inputPage.type = 'hidden'; inputPage.name = 'Page'; form.appendChild(inputPage);
+                    inputPage.type = 'hidden';
+                    inputPage.name = 'Page';
+                    form.appendChild(inputPage);
                 }
                 inputPage.value = page;
                 // submit via AJAX helper
-                window.submitFormAjax(form, '#productTableContainer', function(html){
+                window.submitFormAjax(form, '#productTableContainer', function(html) {
                     window.focusFirstInvalid && window.focusFirstInvalid();
                     window.initTooltips && window.initTooltips('#productTableContainer');
                 });
@@ -153,9 +155,21 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 var res = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                 if (res.ok) {
-                    var html = await res.text();
+                    var text = await res.text();
+                    try {
+                        // Try to parse as JSON first
+                        var data = JSON.parse(text);
+                        if (data.requiresLogin === true) {
+                            showToast('Vui lòng đăng nhập để thêm sản phẩm vào giỏ', 'info');
+                            window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.href);
+                            return;
+                        }
+                    } catch (e) {
+                        // Not JSON, treat as HTML (cart summary partial)
+                    }
+                    // Update cart summary with HTML
                     var cs = document.getElementById('cartSummary');
-                    if (cs) cs.innerHTML = html;
+                    if (cs) cs.innerHTML = text;
                     showToast('Đã thêm vào giỏ', 'success');
                 } else {
                     showToast('Lỗi khi thêm vào giỏ', 'error');

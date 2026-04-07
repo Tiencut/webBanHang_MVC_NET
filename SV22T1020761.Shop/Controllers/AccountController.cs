@@ -7,6 +7,7 @@ using SV22T1020761.Shop.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using System.Linq;
 
 namespace SV22T1020761.Shop.Controllers
 {
@@ -75,7 +76,7 @@ namespace SV22T1020761.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string username, string password, bool rememberMe)
+        public async Task<IActionResult> Login(string username, string password, bool rememberMe, string returnUrl = null)
         {
             var user = await AccountService.ValidateUserAsync(username, password);
             if (user != null)
@@ -84,7 +85,94 @@ namespace SV22T1020761.Shop.Controllers
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                
+                // Check if there's a pending product in session
+                var pendingProductId = HttpContext.Session.GetInt32("PendingProductId");
+                var pendingQty = HttpContext.Session.GetInt32("PendingProductQty") ?? 1;
+                
+                if (pendingProductId.HasValue && pendingProductId.Value > 0)
+                {
+                    try
+                    {
+                        // Auto-add the pending product to cart
+                        var product = SV22T1020761.BusinessLayers.CatalogDataService.GetProduct(pendingProductId.Value);
+                        if (product != null && int.TryParse(user.UserId, out var customerId))
+                        {
+                            var repo = new SV22T1020761.DataLayers.SQLServer.Sales.OrderRepository(SV22T1020761.BusinessLayers.Configuration.ConnectionString);
+                            
+                            // Get or create draft order
+                            var orders = SV22T1020761.BusinessLayers.SalesDataService.ListOrders(
+                                new SV22T1020761.Models.Sales.OrderSearchInput 
+                                { 
+                                    Page = 1, 
+                                    PageSize = 100,
+                                    Status = SV22T1020761.Models.Sales.OrderStatusEnum.New,
+                                    CustomerID = customerId 
+                                });
+                            
+                            var draftOrder = orders?.DataItems?.FirstOrDefault(o => 
+                                o.Status == SV22T1020761.Models.Sales.OrderStatusEnum.New);
+                            
+                            if (draftOrder == null)
+                            {
+                                // Create new order
+                                var newOrder = new SV22T1020761.Models.Sales.Order
+                                {
+                                    CustomerID = customerId,
+                                    OrderTime = System.DateTime.Now,
+                                    Status = SV22T1020761.Models.Sales.OrderStatusEnum.New
+                                };
+                                var details = new System.Collections.Generic.List<SV22T1020761.Models.Sales.OrderDetail>
+                                {
+                                    new SV22T1020761.Models.Sales.OrderDetail
+                                    {
+                                        ProductID = pendingProductId.Value,
+                                        Quantity = pendingQty,
+                                        SalePrice = product.Price
+                                    }
+                                };
+                                await SV22T1020761.BusinessLayers.SalesDataService.AddOrderAsync(newOrder, details);
+                            }
+                            else
+                            {
+                                // Add to existing order
+                                var existing = await repo.GetDetailAsync(draftOrder.OrderID, pendingProductId.Value);
+                                if (existing != null)
+                                {
+                                    existing.Quantity += pendingQty;
+                                    await repo.UpdateDetailAsync(existing);
+                                }
+                                else
+                                {
+                                    var detail = new SV22T1020761.Models.Sales.OrderDetail
+                                    {
+                                        OrderID = draftOrder.OrderID,
+                                        ProductID = pendingProductId.Value,
+                                        Quantity = pendingQty,
+                                        SalePrice = product.Price
+                                    };
+                                    await repo.AddDetailAsync(detail);
+                                }
+                            }
+                        }
+                        
+                        // Clear session
+                        HttpContext.Session.Remove("PendingProductId");
+                        HttpContext.Session.Remove("PendingProductQty");
+                    }
+                    catch (System.Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error auto-adding product: {ex.Message}");
+                    }
+                }
+                
                 TempData["Success"] = "đăng nhập thành công.";
+                
+                // Redirect to returnUrl if provided, else Home
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
                 return RedirectToAction("Index", "Home");
             }
 
