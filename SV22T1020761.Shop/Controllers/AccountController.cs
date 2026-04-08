@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using System.Linq;
+using SV22T1020761.BusinessLayers;
+using SV22T1020761.Models.Common;
 
 namespace SV22T1020761.Shop.Controllers
 {
@@ -187,6 +189,16 @@ namespace SV22T1020761.Shop.Controllers
         public IActionResult Profile()
         {
             var user = AccountService.GetUser(User.Identity?.Name);
+            
+            // Load provinces for dropdown
+            var provinces = DictionaryDataService.ListProvinces(new PaginationSearchInput 
+            { 
+                Page = 1, 
+                PageSize = 1000
+            });
+            
+            ViewBag.Provinces = provinces.DataItems ?? new List<string>();
+            
             return View(user);
         }
 
@@ -209,10 +221,32 @@ namespace SV22T1020761.Shop.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Cập nhật thất bại. Vui lòng sửa các lỗi.";
+                
+                // Reload provinces
+                var provinces = DictionaryDataService.ListProvinces(new PaginationSearchInput 
+                { 
+                    Page = 1, 
+                    PageSize = 1000
+                });
+                ViewBag.Provinces = provinces.DataItems ?? new List<string>();
+                
                 return View(model);
             }
 
+            // Update user
             AccountService.UpdateUser(model);
+            
+            // Reload updated user data
+            model = AccountService.GetUser(currentUser);
+            
+            // Reload provinces
+            var provincesAfterUpdate = DictionaryDataService.ListProvinces(new PaginationSearchInput 
+            { 
+                Page = 1, 
+                PageSize = 1000
+            });
+            ViewBag.Provinces = provincesAfterUpdate.DataItems ?? new List<string>();
+            
             TempData["Success"] = "Cập nhật thông tin cá nhân thành công.";
             return View(model);
         }

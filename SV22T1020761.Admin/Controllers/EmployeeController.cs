@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using SV22T1020761.Admin.AppCodes;
 
 namespace SV22T1020761.Admin.Controllers
 {
@@ -113,10 +114,9 @@ namespace SV22T1020761.Admin.Controllers
                 if (uploadPhoto != null)
                 {
                     var fileName = $"{System.Guid.NewGuid()}{Path.GetExtension(uploadPhoto.FileName)}";
-                    var filePath = Path.Combine(ApplicationContext.WWWRootPath, "images/employees", fileName);
-                    // ensure directory exists
-                    var dir = Path.GetDirectoryName(filePath);
-                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir!);
+                    var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "employees");
+                    if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
+                    var filePath = Path.Combine(uploadsDir, fileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await uploadPhoto.CopyToAsync(stream);

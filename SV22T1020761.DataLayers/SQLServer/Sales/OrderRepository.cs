@@ -26,7 +26,7 @@ namespace SV22T1020761.DataLayers.SQLServer.Sales
             var where = new List<string>();
             var parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(input.SearchValue)) { where.Add("(c.CustomerName LIKE @q OR c.ContactName LIKE @q)"); parameters.Add("q", "%" + input.SearchValue + "%"); }
-            if (input.Status >= 0) { where.Add("o.Status = @Status"); parameters.Add("Status", input.Status); }
+            if (input.Status != OrderStatusEnum.All) { where.Add("o.Status = @Status"); parameters.Add("Status", (int)input.Status); }  // Chỉ filter nếu Status != All
             if (input.DateFrom != null) { where.Add("o.OrderTime >= @DateFrom"); parameters.Add("DateFrom", input.DateFrom); }
             if (input.DateTo != null) { where.Add("o.OrderTime <= @DateTo"); parameters.Add("DateTo", input.DateTo); }
             if (input.CustomerID != null && input.CustomerID > 0) { where.Add("o.CustomerID = @CustomerID"); parameters.Add("CustomerID", input.CustomerID); }
@@ -96,7 +96,7 @@ WHERE o.OrderID = @orderID";
             return await conn.QuerySingleOrDefaultAsync<Order>(sql);
         }
 
-        public async Task<int> AddAsync(Order data)
+        public async Task<int> AddAsync(OrderCreateRequest data)
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
@@ -106,12 +106,12 @@ SELECT CAST(SCOPE_IDENTITY() AS int);";
             return await conn.ExecuteScalarAsync<int>(sql, data);
         }
 
-        public async Task<bool> UpdateAsync(Order data)
+        public async Task<bool> UpdateAsync(OrderCreateRequest data, int orderId)
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
             var sql = @"UPDATE Orders SET CustomerID=@CustomerID, OrderTime=@OrderTime, DeliveryProvince=@DeliveryProvince, DeliveryAddress=@DeliveryAddress, EmployeeID=@EmployeeID, AcceptTime=@AcceptTime, ShipperID=@ShipperID, ShippedTime=@ShippedTime, FinishedTime=@FinishedTime, Status=@Status WHERE OrderID=@OrderID";
-            var affected = await conn.ExecuteAsync(sql, data);
+            var affected = await conn.ExecuteAsync(sql, new { data.CustomerID, data.OrderTime, data.DeliveryProvince, data.DeliveryAddress, data.EmployeeID, data.AcceptTime, data.ShipperID, data.ShippedTime, data.FinishedTime, data.Status, OrderID = orderId });
             return affected > 0;
         }
 
@@ -171,7 +171,10 @@ WHERE od.OrderID = @orderID AND od.ProductID = @productID";
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
             var sql = "DELETE FROM OrderDetails WHERE OrderID = @orderID AND ProductID = @productID";
+            System.Diagnostics.Debug.WriteLine($"[SQL] DeleteDetailAsync: {sql}");
+            System.Diagnostics.Debug.WriteLine($"[PARAM] orderID={orderID}, productID={productID}");
             var affected = await conn.ExecuteAsync(sql, new { orderID, productID });
+            System.Diagnostics.Debug.WriteLine($"[RESULT] Rows affected: {affected}");
             return affected > 0;
         }
     }

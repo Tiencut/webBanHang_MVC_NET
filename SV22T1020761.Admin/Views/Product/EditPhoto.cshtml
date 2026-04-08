@@ -1,4 +1,8 @@
+@model SV22T1020761.Models.Catalog.ProductPhoto
 @{
+    ViewBag.Title = "Chỉnh sửa ảnh sản phẩm";
+    int productID = int.TryParse(Context.Request.Query["productId"], out int pid) ? pid : 
+                    int.TryParse(Context.Request.RouteValues["id"]?.ToString(), out int rid) ? rid : 0;
 }
 @section PageToolBar {
     <button type="submit" form="formEdit" class="btn btn-primary">
@@ -6,7 +10,7 @@
         Lưu ảnh
     </button>
 
-    <a href="~/Product/Edit/123#photos" class="btn btn-secondary ms-1">
+    <a href="~/Product/Edit/@productID#photos" class="btn btn-secondary ms-1">
         <i class="bi bi-arrow-left"></i>
         Quay lại
     </a>
@@ -20,6 +24,8 @@
 
             <div class="card-body">
                 <form id="formEdit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="ProductID" value="@productID" />
+                    <input type="hidden" name="PhotoID" value="@Model.PhotoID" />
 
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-3 fw-semibold">Ảnh</label>
@@ -37,7 +43,7 @@
                         <label class="col-sm-3 fw-semibold">Xem trước</label>
                         <div class="col-sm-9">
                             <img id="imgPreview"
-                                 src="~/images/products/nophoto.png"
+                                 src="~/images/products/@(string.IsNullOrWhiteSpace(Model.Photo) ? "nophoto.png" : Model.Photo)"
                                  class="img-thumbnail"
                                  style="max-height:200px;" />
                         </div>
@@ -47,7 +53,8 @@
                         <label class="col-sm-3 fw-semibold">Mô tả</label>
                         <div class="col-sm-9">
                             <input type="text" name="Description"
-                                      class="form-control" />
+                                   class="form-control"
+                                   value="@Model.Description" />
                         </div>
                     </div>
 
@@ -57,7 +64,7 @@
                             <input type="number"
                                    name="DisplayOrder"
                                    class="form-control"
-                                   value="1"
+                                   value="@Model.DisplayOrder"
                                    min="1" />
                         </div>
                     </div>
@@ -69,7 +76,8 @@
                                 <input class="form-check-input"
                                        type="checkbox"
                                        name="IsHidden"
-                                       id="IsHidden" />
+                                       id="IsHidden"
+                                       @(Model.IsHidden ? "checked" : "") />
                                 <label class="form-check-label" for="IsHidden">
                                     Ẩn ảnh
                                 </label>
@@ -81,3 +89,15 @@
         </div>
     </div>
 </div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imgPreview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>

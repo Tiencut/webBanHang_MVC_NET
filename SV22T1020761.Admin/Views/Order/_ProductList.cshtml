@@ -1,53 +1,33 @@
 @model PagedResult<SV22T1020761.Models.Catalog.Product>
 
-@{
-    int itemIndex = 1;
-}
-
-@if (Model?.DataItems != null && Model.DataItems.Count > 0)
+@if (Model?.DataItems?.Count > 0)
 {
     @foreach (var product in Model.DataItems)
     {
-        <form method="post" class="border rounded p-2 mb-2">
-            <strong>@product.ProductName</strong>
-
-            <div class="row mt-2">
-                <div class="col-4">
-                    <img src="@(string.IsNullOrEmpty(product.Photo) ? "~/images/products/demo.png" : $"~/images/products/{product.Photo}")"
-                         class="img-fluid border" style="max-height:100px" onerror="this.src='/images/products/demo.png'" />
+        <a href="#" class="list-group-item list-group-item-action product-item" 
+           data-id="@product.ProductID" 
+           data-name="@product.ProductName" 
+           data-price="@product.Price"
+           style="cursor: pointer;">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <img src="@Url.Content("~/images/products/" + (product.Photo ?? "nophoto.png"))" 
+                         style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" />
                 </div>
-                <div class="col-8">
-                    <div class="row g-2">
-                        <div class="col-7">
-                            <label class="form-label mb-0">Giá</label>
-                            <input type="hidden" name="productID" value="@product.ProductID" />
-                            <input class="form-control form-control-sm money-input"
-                                   value="@product.Price.ToString("N0")"
-                                   readonly />
-                        </div>
-                        <div class="col-5">
-                            <label class="form-label mb-0">SL</label>
-                            <input type="number"
-                                   name="quantity"
-                                   min="1"
-                                   value="1"
-                                   class="form-control form-control-sm" />
-                        </div>
-                    </div>
-
-                    <button type="button" class="btn btn-sm btn-primary mt-2 w-100 add-to-cart"
-                            data-product-id="@product.ProductID"
-                            data-product-name="@product.ProductName"
-                            data-product-price="@product.Price"
-                            data-product-unit="@product.Unit"
-                            data-product-photo="@(string.IsNullOrEmpty(product.Photo) ? "demo.png" : product.Photo)">
-                        <i class="bi bi-cart-plus"></i>
-                        Thêm vào giỏ
-                    </button>
+                <div class="col">
+                    <div class="fw-bold">@product.ProductName</div>
+                    <small class="text-muted">Giá: @product.Price.ToString("C0")</small>
                 </div>
             </div>
-        </form>
-        itemIndex++;
+        </a>
+    }
+}
+else
+{
+    <div class="text-center text-muted py-3">
+        Không có sản phẩm nào
+    </div>
+}
     }
 }
 else

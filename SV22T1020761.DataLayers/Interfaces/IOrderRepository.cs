@@ -25,13 +25,14 @@ namespace SV22T1020761.DataLayers.Interfaces
         /// </summary>
         /// <param name="data"></param>
         /// <returns>Mã đơn hàng được bổ sung</returns>
-        Task<int> AddAsync(Order data);
+        Task<int> AddAsync(OrderCreateRequest data);
         /// <summary>
         /// Cập nhật đơn hàng
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="orderId"></param>
         /// <returns></returns>
-        Task<bool> UpdateAsync(Order data);
+        Task<bool> UpdateAsync(OrderCreateRequest data, int orderId);
         /// <summary>
         /// Xóa đơn hàng
         /// </summary>

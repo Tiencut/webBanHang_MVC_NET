@@ -75,6 +75,7 @@ function paginationSearch(event, form, page) {
 
     // Clear nội dung khi modal đóng
     modalEl.addEventListener('hidden.bs.modal', function() {
+        modalEl.setAttribute('aria-hidden', 'true');
         modalContent.innerHTML = '';
     });
 
@@ -99,6 +100,7 @@ function paginationSearch(event, form, page) {
             });
         }
 
+        modalEl.setAttribute('aria-hidden', 'false');
         modal.show();
 
         // Load nội dung

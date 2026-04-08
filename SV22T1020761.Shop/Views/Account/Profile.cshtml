@@ -4,52 +4,171 @@
     ViewData["Title"] = "Hồ sơ";
 }
 
-<div class="auth-card">
-    <h1>Hồ sơ</h1>
+<style>
+    .profile-card {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+    }
+
+    .profile-card h1 {
+        color: #333;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+        font-weight: 700;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+    }
+
+    .form-control:disabled {
+        background-color: #f8f9fa;
+        color: #666;
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .btn-primary, .btn-secondary {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="profile-card">
+    <h1><i class="bi bi-person-circle me-2"></i>Hồ sơ cá nhân</h1>
 
     <form asp-action="Profile" method="post">
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
 
-        <div class="form-group mb-3">
-            <label for="UserName">Tên đăng nhập</label>
-            <input asp-for="UserName" class="form-control" readonly />
+        <!-- Two Column Layout -->
+        <div class="form-row">
+            <!-- Left Column -->
+            <div>
+                <div class="form-group mb-3">
+                    <label for="UserName">Tên đăng nhập</label>
+                    <input asp-for="UserName" class="form-control" readonly />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Email">Email</label>
+                    <input asp-for="Email" class="form-control" maxlength="255" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="CustomerName">Tên khách hàng</label>
+                    <input asp-for="CustomerName" class="form-control" />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Phone">Điện thoại</label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <div class="form-group mb-3">
+                    <label for="ContactName">Tên liên hệ</label>
+                    <input asp-for="ContactName" class="form-control" />
+                    <span asp-validation-for="ContactName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Province">Tỉnh/Thành phố</label>
+                    <select asp-for="Province" class="form-select">
+                        <option value="">-- Chọn tỉnh/thành phố --</option>
+                        @foreach (var province in (List<string>)(ViewBag.Provinces ?? new List<string>()))
+                        {
+                            <option value="@province">@province</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Province" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Address">Địa chỉ</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+            </div>
         </div>
-        <div class="form-group mb-3">
-            <label for="Email">Email</label>
-            <input asp-for="Email" class="form-control" maxlength="255" />
-            <span asp-validation-for="Email" class="text-danger"></span>
+
+        <!-- Full Width Actions -->
+        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle me-2"></i>Cập nhật hồ sơ
+            </button>
+            <a asp-action="ChangePassword" class="btn btn-secondary">
+                <i class="bi bi-key me-2"></i>Đổi mật khẩu
+            </a>
         </div>
-        <div class="form-group mb-3">
-            <label for="CustomerName">Tên khách hàng</label>
-            <input asp-for="CustomerName" class="form-control" />
-            <span asp-validation-for="CustomerName" class="text-danger"></span>
-        </div>
-        <div class="form-group mb-3">
-            <label for="ContactName">Tên liên hệ</label>
-            <input asp-for="ContactName" class="form-control" />
-            <span asp-validation-for="ContactName" class="text-danger"></span>
-        </div>
-        <div class="form-group mb-3">
-            <label for="Phone">Điện thoại</label>
-            <input asp-for="Phone" class="form-control" />
-            <span asp-validation-for="Phone" class="text-danger"></span>
-        </div>
-        <div class="form-group mb-3">
-            <label for="Province">Tỉnh/Thành phố</label>
-            <input asp-for="Province" class="form-control" />
-            <span asp-validation-for="Province" class="text-danger"></span>
-        </div>
-        <div class="form-group mb-3">
-            <label for="Address">Địa chỉ</label>
-            <input asp-for="Address" class="form-control" />
-            <span asp-validation-for="Address" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-primary">Cập nhật</button>
     </form>
-    <div class="text-center mt-3">
-        <p><a asp-action="ChangePassword" class="btn btn-secondary">Đổi mật khẩu</a></p>
-    </div>
 </div>
 
 @section Scripts {

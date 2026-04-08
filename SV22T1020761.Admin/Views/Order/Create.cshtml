@@ -1,263 +1,286 @@
 @model SV22T1020761.Models.Sales.Order
+@using SV22T1020761.Models.Sales
 @{
-    ViewBag.Title = "Thêm mới Đơn hàng";
+    ViewBag.Title = "Lập đơn hàng";
 }
-<h2>Thêm mới Đơn hàng</h2>
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="CustomerName">Khách hàng</label>
-        <input asp-for="CustomerName" class="form-control" />
-        <span asp-validation-for="CustomerName" class="text-danger"></span>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div class="form-group">
-        <label for="OrderDate">Ngày đặt</label>
-        <input asp-for="OrderDate" class="form-control" />
-        <span asp-validation-for="OrderDate" class="text-danger"></span>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div class="form-group">
-        <label for="TotalAmount">Tổng tiền</label>
-        <input asp-for="TotalAmount" class="form-control" />
-        <span asp-validation-for="TotalAmount" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Lưu</button>
-    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
-</form>
+}
+<div class="mb-3">
+    <a href="~/Order/Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại
+    </a>
+</div>
 
 <div class="row">
-    <!-- Tìm kiếm & chọn mặt hàng -->
-    <div class="col-4">
-        <div class="card card-outline card-primary h-100">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-search"></i>
-                    Lựa chọn hàng cần bán
-                </h5>
+    <!-- Tìm kiếm mặt hàng -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-search me-1"></i> Tìm kiếm sản phẩm</h5>
             </div>
-
             <div class="card-body">
-                <!-- Search -->
-                <form id="searchForm" class="mb-3">
-                    <div class="input-group">
-                        <input class="form-control"
-                               id="searchValue"
-                               name="searchValue"
-                               placeholder="Nhập tên mặt hàng cần tìm" autofocus />
-                        <button type="button" class="btn btn-primary" id="searchBtn">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Danh sách mặt hàng -->
-                <div id="productListContainer">
+                <div class="input-group mb-3">
+                    <input type="text" id="searchValue" class="form-control" placeholder="Tên sản phẩm..." />
+                    <button type="button" id="btnSearch" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <div id="productListContainer" class="list-group" style="max-height: 400px; overflow-y: auto;">
                     <div class="text-center text-muted py-5">
-                        <i class="bi bi-inbox"></i>
-                        <p>Nhập tên sản phẩm và bấm tìm kiếm</p>
+                        Nhập tên sản phẩm để tìm
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Giỏ hàng và thông tin khách hàng -->
-    <div class="col-8">
+    <!-- Giỏ hàng và thông tin đơn -->
+    <div class="col-lg-8">
         <!-- Giỏ hàng -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-outline card-success">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="bi bi-cart"></i>
-                            Danh sách mặt hàng đã chọn
-                        </h5>
-                    </div>
-
-                    <div class="card-body">
-                        <div id="cartTableContainer">
-                            <partial name="_CartTable" model="@(ViewBag.Cart as List<SV22T1020761.Models.Sales.OrderDetailViewInfo>)" />
-                        </div>
-
-                        <div class="text-end">
-                            <a class="btn btn-sm btn-danger mt-2 open-modal"                               
-                               href="~/Order/ClearCart">
-                                <i class="bi bi-trash"></i>
-                                Xóa giỏ hàng
-                            </a>
-                        </div>
-                    </div>
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-cart me-1"></i> Giỏ hàng</h5>
+            </div>
+            <div class="card-body p-0">
+                <div id="cartContainer">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-end">Giá</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Thành tiền</th>
+                                <th class="text-center">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartItems">
+                            <tr class="text-center text-muted">
+                                <td colspan="5">Giỏ hàng trống</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-secondary">
+                                <th colspan="3" class="text-end">Tổng cộng:</th>
+                                <th class="text-end" id="cartTotal">0 ₫</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="text-end p-3 border-top">
+                    <button type="button" class="btn btn-sm btn-danger" id="btnClearCart">
+                        <i class="bi bi-trash me-1"></i> Xóa giỏ
+                    </button>
                 </div>
             </div>
         </div>
-        <!-- Thông tin khách hàng và nơi giao hàng -->
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="card card-outline card-info">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="bi bi-person"></i>
-                            Thông tin khách hàng & nơi giao hàng
-                        </h5>
+
+        <!-- Thông tin khách hàng -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-person me-1"></i> Thông tin khách hàng</h5>
+            </div>
+            <form id="orderForm" method="post" class="card-body">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="cartData" name="cartData" />
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Khách hàng <span class="text-danger">*</span></label>
+                        <select name="CustomerID" id="customerSelect" class="form-control" required onchange="console.log('Customer selected:', this.value);">
+                            <option value="">-- Chọn khách hàng --</option>
+                            @if (ViewBag.Customers != null)
+                            {
+                                @foreach (Microsoft.AspNetCore.Mvc.Rendering.SelectListItem item in ViewBag.Customers)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option disabled>Không có dữ liệu khách hàng</option>
+                            }
+                        </select>
+                        <small class="text-muted" id="customerCount"></small>
                     </div>
-
-                    <div class="card-body">
-                        @if (TempData["Error"] != null)
-                        {
-                            <div class="alert alert-danger">
-                                @TempData["Error"]
-                            </div>
-                        }
-                        <form method="post">
-                            <div class="row mb-3">
-                                <label class="col-md-2 col-form-label">Khách hàng</label>
-                                <div class="col-md-10">
-                                    <select class="form-select" name="CustomerID" asp-items="@(ViewBag.Customers as SelectList)">
-                                        <option value="">-- Chọn khách hàng --</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <label class="col-md-2 col-form-label">Tỉnh/thành</label>
-                                <div class="col-md-10">
-                                    <select class="form-select" name="DeliveryProvince" asp-items="@(ViewBag.Provinces as SelectList)">
-                                        <option value="">-- Chọn Tỉnh/thành giao hàng --</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <label class="col-md-2 col-form-label">Địa chỉ</label>
-                                <div class="col-md-10">
-                                    <textarea class="form-control"></textarea>
-                                </div>
-                            </div>
-
-                            <div class="text-end">
-                                <button class="btn btn-primary">
-                                    <i class="bi bi-check-circle"></i>
-                                    Lập đơn hàng
-                                </button>
-                            </div>
-                        </form>
+                    <div class="col-md-6">
+                        <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                        <select name="DeliveryProvince" id="provinceSelect" class="form-control" required onchange="console.log('Province selected:', this.value);">
+                            <option value="">-- Chọn tỉnh/thành --</option>
+                            @if (ViewBag.Provinces != null)
+                            {
+                                @foreach (Microsoft.AspNetCore.Mvc.Rendering.SelectListItem item in ViewBag.Provinces)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option disabled>Không có dữ liệu tỉnh/thành</option>
+                            }
+                        </select>
+                        <small class="text-muted" id="provinceCount"></small>
                     </div>
                 </div>
-            </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ giao hàng</label>
+                    <textarea name="DeliveryAddress" class="form-control" rows="2" placeholder="Nhập địa chỉ chi tiết..."></textarea>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle me-1"></i> Hoàn tất lập đơn
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Search products via AJAX
-    function searchProducts(page = 1) {
+    const cart = new Map();
+
+    // Search products
+    document.getElementById('btnSearch').addEventListener('click', async function() {
         const searchValue = document.getElementById('searchValue').value;
-        
-        fetch(`@Url.Action("SearchProducts", "Order")?searchValue=${encodeURIComponent(searchValue)}&page=${page}&pageSize=10`)
-            .then(response => response.text())
-            .then(html => {
+        if (!searchValue.trim()) {
+            showToast('Vui lòng nhập tên sản phẩm', 'warning');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/Order/SearchProducts?searchValue=${encodeURIComponent(searchValue)}`);
+            if (res.ok) {
+                const html = await res.text();
                 document.getElementById('productListContainer').innerHTML = html;
-                // Re-attach event listeners to new buttons and pagination links
-                attachAddToCartListeners();
-                attachPaginationListeners();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('productListContainer').innerHTML = `<div class="alert alert-danger">Lỗi tải dữ liệu: ${error.message}</div>`;
-            });
-    }
-
-    // Load products on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle search button click
-        const searchBtn = document.getElementById('searchBtn');
-        if (searchBtn) {
-            searchBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                searchProducts(1);
-            });
+                
+                // Attach click handlers to product items
+                document.querySelectorAll('.product-item').forEach((item, index) => {
+                    item.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-id');
+                        const productName = this.getAttribute('data-name');
+                        const price = parseFloat(this.getAttribute('data-price'));
+                        addToCart(productId, productName, price);
+                    });
+                });
+            }
+        } catch (err) {
+            showToast('Lỗi tìm kiếm: ' + err.message, 'error');
         }
-
-        // Handle Enter key in search input
-        const searchValue = document.getElementById('searchValue');
-        if (searchValue) {
-            searchValue.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    searchProducts(1);
-                }
-            });
-        }
-
-        // Re-attach "Add to Cart" listeners after products loaded
-        attachAddToCartListeners();
     });
 
-    // Function to refresh cart display
-    function refreshCartTable() {
-        fetch('@Url.Action("GetCartTable", "Order")')
-            .then(response => response.text())
-            .then(html => {
-                const cartContainer = document.getElementById('cartTableContainer');
-                if (cartContainer) {
-                    cartContainer.innerHTML = html;
-                }
-            })
-            .catch(error => console.error('Error refreshing cart:', error));
-    }
-
-    // Function to attach "Add to Cart" event listeners
-    function attachAddToCartListeners() {
-        document.querySelectorAll('.add-to-cart').forEach(btn => {
-            btn.removeEventListener('click', handleAddToCart);
-            btn.addEventListener('click', handleAddToCart);
-        });
-    }
-
-    // Function to attach pagination event listeners
-    function attachPaginationListeners() {
-        document.querySelectorAll('.search-page-link').forEach(link => {
-            link.removeEventListener('click', handlePaginationClick);
-            link.addEventListener('click', handlePaginationClick);
-        });
-    }
-
-    // Handle pagination click
-    function handlePaginationClick(e) {
-        e.preventDefault();
-        const page = this.dataset.page;
-        if (page) {
-            searchProducts(parseInt(page));
+    // Add to cart
+    function addToCart(productId, productName, price) {
+        if (cart.has(productId)) {
+            const item = cart.get(productId);
+            item.quantity++;
+        } else {
+            cart.set(productId, { name: productName, price: price, quantity: 1 });
         }
+        updateCart();
+        showToast(`Đã thêm "${productName}" vào giỏ`, 'success');
     }
 
-    // Handle "Add to Cart" click
-    function handleAddToCart(e) {
-        e.preventDefault();
+    // Remove from cart
+    window.removeFromCart = function(productId) {
+        cart.delete(productId);
+        updateCart();
+    };
+
+    // Update quantity
+    window.updateQuantity = function(productId, quantity) {
+        quantity = parseInt(quantity);
+        if (quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            cart.get(productId).quantity = quantity;
+            updateCart();
+        }
+    };
+
+    // Clear cart
+    document.getElementById('btnClearCart').addEventListener('click', function() {
+        if (confirm('Xóa toàn bộ giỏ hàng?')) {
+            cart.clear();
+            updateCart();
+        }
+    });
+
+    // Update cart display
+    function updateCart() {
+        const cartItems = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
         
-        const productID = this.dataset.productId;
-        const quantity = parseInt(this.parentElement.querySelector('input[name="quantity"]').value);
+        if (cart.size === 0) {
+            cartItems.innerHTML = '<tr class="text-center text-muted"><td colspan="5">Giỏ hàng trống</td></tr>';
+            cartTotal.textContent = '0 ₫';
+            return;
+        }
+
+        let total = 0;
+        let html = '';
         
-        fetch('@Url.Action("AddToCart", "Order")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                productID: productID,
-                quantity: quantity
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Refresh cart table WITHOUT reloading page (no alert)
-                refreshCartTable();
-            } else {
-                alert('Lỗi: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Lỗi: ' + error.message);
+        cart.forEach((item, productId) => {
+            const lineTotal = item.price * item.quantity;
+            total += lineTotal;
+            html += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td class="text-end">${item.price.toLocaleString('vi-VN')} ₫</td>
+                    <td class="text-center">
+                        <input type="number" value="${item.quantity}" min="1" 
+                               onchange="updateQuantity('${productId}', this.value)" 
+                               style="width: 60px; text-align: center;" />
+                    </td>
+                    <td class="text-end">${lineTotal.toLocaleString('vi-VN')} ₫</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart('${productId}')">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
         });
+        
+        cartItems.innerHTML = html;
+        cartTotal.textContent = total.toLocaleString('vi-VN') + ' ₫';
     }
+
+    // Form submit
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        if (cart.size === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một sản phẩm');
+            return;
+        }
+
+        // Save cart data to hidden field before submit
+        const cartData = Array.from(cart.entries()).map(([id, item]) => ({
+            productId: parseInt(id),
+            quantity: item.quantity
+        }));
+
+        document.getElementById('cartData').value = JSON.stringify(cartData);
+        // Form will submit naturally after this
+    });
+
+    // Search on Enter key
+    document.getElementById('searchValue').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('btnSearch').click();
+        }
+    });
 </script>

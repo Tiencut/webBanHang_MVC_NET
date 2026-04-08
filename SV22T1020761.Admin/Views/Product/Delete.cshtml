@@ -4,12 +4,70 @@
 }
 <h2>Xóa Sản phẩm</h2>
 <h3>Bạn có chắc chắn muốn xóa sản phẩm này?</h3>
-<div>
-    <h4>@Model.ProductName</h4>
-    <p>Giá: @Model.Price</p>
-    <p>Số lượng: @Model.Quantity</p>
+<div class="card card-danger">
+    <div class="card-body">
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Tên sản phẩm:</label>
+            <div class="col-md-9">
+                <p class="form-control-plaintext">@Model.ProductName</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Giá:</label>
+            <div class="col-md-9">
+                <p class="form-control-plaintext">@Model.Price.ToString("N0") đ</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Mô tả:</label>
+            <div class="col-md-9">
+                <p class="form-control-plaintext">@(string.IsNullOrEmpty(Model.ProductDescription) ? "(Chưa có mô tả)" : Model.ProductDescription)</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Đơn vị tính:</label>
+            <div class="col-md-9">
+                <p class="form-control-plaintext">@(string.IsNullOrEmpty(Model.Unit) ? "(Chưa có)" : Model.Unit)</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Số lượng tồn:</label>
+            <div class="col-md-9">
+                <p class="form-control-plaintext">@Model.Quantity</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Ảnh:</label>
+            <div class="col-md-9">
+                @if (!string.IsNullOrEmpty(Model.Photo))
+                {
+                    <img src="~/images/products/@Model.Photo" alt="Product" style="max-height:100px;" />
+                }
+                else
+                {
+                    <p class="form-control-plaintext">(Không có ảnh)</p>
+                }
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-md-3 col-form-label fw-bold">Trạng thái:</label>
+            <div class="col-md-9">
+                <p class="form-control-plaintext">
+                    @if (Model.IsSelling)
+                    {
+                        <span class="badge bg-success">Đang bán</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Ngừng bán</span>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
-<form asp-action="Delete" method="post">
+<hr />
+<form asp-action="DeleteConfirmed" method="post" style="display:inline;">
     <input type="hidden" asp-for="ProductID" />
     <button type="submit" class="btn btn-danger">Xóa</button>
     <a asp-action="Index" class="btn btn-secondary">Hủy</a>

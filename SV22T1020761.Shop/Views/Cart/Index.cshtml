@@ -11,21 +11,86 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        function setupCartHandlers() {
             var container = document.getElementById('cartTableContainer');
-            container.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                var form = e.target;
-                var fd = new FormData(form);
-                try {
-                    var res = await fetch(form.action, { method: form.method, body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-                    if (res.ok) {
-                        var html = await res.text();
-                        container.innerHTML = html;
-                        showToast('Cập nhật Giỏ hàng', 'success');
-                    } else showToast('L?i', 'error');
-                } catch (err) { showToast(err.message, 'error'); }
+            if (!container) return;
+            
+            // Handle all form submits within cart table
+            var forms = container.querySelectorAll('form');
+            forms.forEach(function(form) {
+                form.addEventListener('submit', handleFormSubmit);
             });
-        });
+        }
+        
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            var form = e.target;
+            
+            console.log('Form submit triggered:', form.action);
+            
+            // Check if it's delete cart form
+            if (form.id === 'deleteCartForm') {
+                if (!confirm('Bạn có chắc chắn muốn xoá toàn bộ giỏ hàng?')) {
+                    return;
+                }
+            }
+            
+            // Validate qty input
+            var qtyInput = form.querySelector('input[name="qty"]');
+            if (qtyInput && (qtyInput.value <= 0 || qtyInput.value === '')) {
+                showToast('Vui lòng nhập số lượng lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (!form || !form.action) {
+                console.log('Form action not found:', form.action);
+                return;
+            }
+            
+            var fd = new FormData(form);
+            try {
+                console.log('Fetching:', form.action, 'Method:', form.method);
+                var res = await fetch(form.action, { 
+                    method: form.method, 
+                    body: fd, 
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+                });
+                
+                console.log('Response status:', res.status);
+                
+                if (res.ok) {
+                    var contentType = res.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        // API response
+                        var data = await res.json();
+                        console.log('JSON response:', data);
+                        if (data.success) {
+                            showToast(data.message || 'Cập nhật giỏ hàng thành công', 'success');
+                            // Reload page to refresh cart
+                            setTimeout(function() { location.reload(); }, 500);
+                        } else {
+                            showToast(data.message || 'Lỗi cập nhật', 'error');
+                        }
+                    } else {
+                        // HTML Partial response
+                        var html = await res.text();
+                        var container = document.getElementById('cartTableContainer');
+                        container.innerHTML = html;
+                        showToast('Cập nhật giỏ hàng thành công', 'success');
+                        setupCartHandlers(); // Re-attach handlers to new forms
+                    }
+                } else {
+                    showToast('Lỗi: ' + res.status, 'error');
+                }
+            } catch (err) { 
+                console.error('Error:', err);
+                showToast('Lỗi: ' + err.message, 'error'); 
+            }
+        }
+        
+        // Setup handlers when page loads and whenever content changes
+        document.addEventListener('DOMContentLoaded', setupCartHandlers);
     </script>
 }

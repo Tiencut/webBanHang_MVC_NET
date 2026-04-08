@@ -31,10 +31,16 @@ namespace SV22T1020761.DataLayers.SQLServer.Catalog
             if (input.SupplierID > 0) { whereClauses.Add("SupplierID = @SupplierID"); parameters.Add("SupplierID", input.SupplierID); }
             if (input.MinPrice > 0) { whereClauses.Add("Price >= @MinPrice"); parameters.Add("MinPrice", input.MinPrice); }
             if (input.MaxPrice > 0) { whereClauses.Add("Price <= @MaxPrice"); parameters.Add("MaxPrice", input.MaxPrice); }
-            if (!string.IsNullOrWhiteSpace(input.SearchValue)) { whereClauses.Add("ProductName LIKE @q"); parameters.Add("q", "%" + input.SearchValue + "%"); }
+            if (!string.IsNullOrWhiteSpace(input.SearchValue)) 
+            { 
+                var searchTerm = "%" + input.SearchValue + "%";
+                Console.WriteLine($"🔍 DEBUG: SearchValue='{input.SearchValue}', searchTerm='{searchTerm}'");
+                whereClauses.Add("UPPER(ProductName) LIKE UPPER(@q)"); 
+                parameters.Add("q", searchTerm); 
+            }
 
             string where = whereClauses.Count > 0 ? "WHERE " + string.Join(" AND ", whereClauses) : string.Empty;
-
+  
             var countSql = $"SELECT COUNT(*) FROM Products {where}";
             System.Diagnostics.Trace.TraceInformation($"ProductRepository.ListAsync - CountSql: {countSql}");
             Console.WriteLine($"📊 ProductRepository.ListAsync - CountSql: {countSql}");

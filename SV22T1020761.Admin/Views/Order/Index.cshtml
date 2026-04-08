@@ -1,6 +1,21 @@
 @model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Sales.Order>
+@using SV22T1020761.Models.Sales
 @{
     ViewBag.Title = "Quản lý Đơn hàng";
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 @section PageToolBar {
     <a href="~/Order/Create" class="btn btn-primary">
@@ -10,12 +25,39 @@
 }
 <div class="card mb-3">
     <div class="card-body">
-        <form id="formSearch" method="get" action="~/Order/Index">
-            <div class="input-group">
-                <input type="text" name="searchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Mã đơn hàng..." autofocus />
-                <button class="btn btn-info d-flex align-items-center">
-                    <i class="bi bi-search me-1"></i>
-                </button>
+        <form method="get" action="~/Order/Index">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" name="searchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Tên khách hàng..." />
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-control">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="-2" selected="@(Context.Request.Query["status"] == "-2" ? "selected" : null)">Bị từ chối</option>
+                        <option value="-1" selected="@(Context.Request.Query["status"] == "-1" ? "selected" : null)">Bị hủy</option>
+                        <option value="0" selected="@(Context.Request.Query["status"] == "0" ? "selected" : null)">Nháp</option>
+                        <option value="1" selected="@(Context.Request.Query["status"] == "1" ? "selected" : null)">Mới</option>
+                        <option value="2" selected="@(Context.Request.Query["status"] == "2" ? "selected" : null)">Đã duyệt</option>
+                        <option value="3" selected="@(Context.Request.Query["status"] == "3" ? "selected" : null)">Đang giao</option>
+                        <option value="4" selected="@(Context.Request.Query["status"] == "4" ? "selected" : null)">Hoàn tất</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-info w-100 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-search me-1"></i> Tìm
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="date" name="dateFrom" value="@Context.Request.Query["dateFrom"]" class="form-control" placeholder="Từ ngày..." />
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="dateTo" value="@Context.Request.Query["dateTo"]" class="form-control" placeholder="Đến ngày..." />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">Lọc theo ngày</button>
+                </div>
             </div>
         </form>
     </div>
@@ -28,10 +70,11 @@
         <table class="table table-bordered table-hover mb-0">
             <thead class="table-secondary">
                 <tr>
-                    <th>Mã đơn hàng</th>
+                    <th style="width:80px;">Mã DH</th>
                     <th>Khách hàng</th>
-                    <th>Ngày đặt</th>
-                    <th>Tổng tiền</th>
+                    <th style="width:120px;">Ngày đặt</th>
+                    <th style="width:100px;">Trạng thái</th>
+                    <th class="text-end" style="width:100px;">Tổng tiền</th>
                     <th class="text-center" style="width:100px;">Thao tác</th>
                 </tr>
             </thead>
@@ -40,16 +83,33 @@
                 {
                     foreach (var item in Model.DataItems)
                     {
+                        var statusBadge = ((OrderStatusEnum)item.Status) switch
+                        {
+                            OrderStatusEnum.Draft => new { className = "bg-secondary", text = "Nháp" },
+                            OrderStatusEnum.New => new { className = "bg-primary", text = "Mới" },
+                            OrderStatusEnum.Accepted => new { className = "bg-info", text = "Đã duyệt" },
+                            OrderStatusEnum.Shipping => new { className = "bg-warning", text = "Đang giao" },
+                            OrderStatusEnum.Completed => new { className = "bg-success", text = "Hoàn tất" },
+                            OrderStatusEnum.Rejected => new { className = "bg-danger", text = "Bị từ chối" },
+                            OrderStatusEnum.Cancelled => new { className = "bg-dark", text = "Bị hủy" },
+                            _ => new { className = "bg-secondary", text = "Không xác định" }
+                        };
                         <tr>
-                            <td>@item.OrderID</td>
+                            <td><strong>#@item.OrderID</strong></td>
                             <td>@item.CustomerName</td>
-                            <td>@item.OrderDate</td>
-                            <td>@item.TotalAmount</td>
+                            <td>@item.OrderTime.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="badge @statusBadge.className">@statusBadge.text</span>
+                            </td>
+                            <td class="text-end">@(item.TotalAmount?.ToString("C0") ?? "0")</td>
                             <td class="text-center text-nowrap">
-                                <a href="~/Order/Edit/@item.OrderID" class="btn btn-sm btn-primary">
+                                <a href="~/Order/Details/@item.OrderID" class="btn btn-sm btn-info" title="Xem chi tiết">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="~/Order/Edit/@item.OrderID" class="btn btn-sm btn-primary" title="Xử lý">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="~/Order/Delete/@item.OrderID" class="btn btn-sm btn-danger">
+                                <a href="~/Order/Delete/@item.OrderID" class="btn btn-sm btn-danger" title="Xóa">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
@@ -59,7 +119,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="text-center">Không có dữ liệu</td>
+                        <td colspan="6" class="text-center">Không có dữ liệu</td>
                     </tr>
                 }
             </tbody>
@@ -68,11 +128,27 @@
 </div>
 <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center mt-3">
-        @for (int i = 1; i <= Model?.PageCount; i++)
+        @if (Model?.PageCount > 1)
         {
-            <li class="page-item @(i == Model.Page ? "active" : "")">
-                <a class="page-link" href="?page=@i&searchValue=@Context.Request.Query["searchValue"]">@i</a>
-            </li>
+            var queryString = $"searchValue={Context.Request.Query["searchValue"]}&status={Context.Request.Query["status"]}&dateFrom={Context.Request.Query["dateFrom"]}&dateTo={Context.Request.Query["dateTo"]}";
+            if (Model.Page > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&@queryString">&laquo;</a>
+                </li>
+            }
+            for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.PageCount, Model.Page + 2); i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="?page=@i&@queryString">@i</a>
+                </li>
+            }
+            if (Model.Page < Model.PageCount)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@Model.PageCount&@queryString">&raquo;</a>
+                </li>
+            }
         }
     </ul>
 </nav>

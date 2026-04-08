@@ -4,23 +4,34 @@
 @model SV22T1020761.Models.Catalog.Product
 <div class="p-3">
     <h5>Bạn có chắc chắn muốn xóa sản phẩm <strong>@Model.ProductName</strong>?</h5>
-    <form id="formProductDelete" method="post" action="~/Product/DeleteConfirmed">
+    <form id="formProductDelete" method="post" action="@Url.Action("DeleteConfirmed", "Product")" style="display:none;">
         @Html.AntiForgeryToken()
         <input type="hidden" name="id" value="@Model.ProductID" />
-        <div class="text-end mt-3">
-            <button type="submit" class="btn btn-danger">Xóa</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        </div>
     </form>
+    <div class="text-end mt-3">
+        <button type="button" class="btn btn-danger" id="btnDeleteProduct">Xóa</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+    </div>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    // Setup delete handler ngay lập tức (không dùng DOMContentLoaded vì modal load động)
+    (function() {
         var form = document.getElementById('formProductDelete');
-        form.addEventListener('submit', async function (e) {
+        var btn = document.getElementById('btnDeleteProduct');
+        
+        if (!form || !btn) {
+            console.error('❌ Form hoặc button không tìm thấy');
+            return;
+        }
+        
+        btn.addEventListener('click', async function (e) {
             e.preventDefault();
             var url = form.action;
-            var token = form.querySelector('input[name="__RequestVerificationToken"]').value;
-            var id = form.querySelector('input[name="id"]').value;
+            var token = form.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            var id = form.querySelector('input[name="id"]')?.value || '';
+            
+            console.log('🗑️ DELETE - URL:', url);
+            console.log('🗑️ DELETE - ID:', id);
             
             try {
                 var res = await fetch(url, {
@@ -31,18 +42,24 @@
                     },
                     body: '__RequestVerificationToken=' + encodeURIComponent(token) + '&id=' + encodeURIComponent(id)
                 });
+                
+                console.log('🗑️ RESPONSE STATUS:', res.status);
+                
                 if (res.ok) {
-                    var html = await res.text();
-                    document.getElementById('productTableContainer').innerHTML = html;
+                    var responseText = await res.text();
+                    document.getElementById('productTableContainer').innerHTML = responseText;
                     var modalEl = document.getElementById('dialogModal');
-                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    showToast('Xóa sản phẩm thành công', 'success');
                 } else {
-                    showToast('Lỗi khi xóa', 'error');
+                    var responseText = await res.text();
+                    showToast('Lỗi khi xóa: ' + responseText.substring(0, 100), 'error');
                 }
             } catch (err) {
+                console.error('🗑️ DELETE ERROR:', err);
                 showToast('Lỗi khi xóa: ' + err.message, 'error');
             }
         });
-    });
+    })();
 </script>

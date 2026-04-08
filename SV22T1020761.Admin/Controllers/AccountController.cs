@@ -97,6 +97,7 @@ namespace SV22T1020761.Admin.Controllers
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
                 });
 
+                TempData["Success"] = $"Xin chào {employee.FullName}! Đăng nhập thành công.";
                 return RedirectToAction("Index", "Home");
             }
             catch (System.Exception ex)
@@ -182,7 +183,7 @@ namespace SV22T1020761.Admin.Controllers
                 employee.Password = CryptHelper.HashMD5(model.NewPassword);
                 await HRDataService.UpdateEmployeeAsync(employee);
 
-                TempData["SuccessMessage"] = "Đổi mật khẩu thành công.";
+                TempData["Success"] = "Đổi mật khẩu thành công.";
                 return RedirectToAction("Index", "Home");
             }
             catch (System.Exception ex)

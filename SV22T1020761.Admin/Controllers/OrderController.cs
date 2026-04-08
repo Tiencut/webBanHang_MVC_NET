@@ -11,18 +11,29 @@ namespace SV22T1020761.Admin.Controllers
     [Authorize]
     public class OrderController : Controller
     {
-        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10)
+        public IActionResult Index(string searchValue, int page = 1, int pageSize = 10, string status = "", string dateFrom = "", string dateTo = "")
         {
             try
             {
-                var input = new PaginationSearchInput
+                var input = new OrderSearchInput
                 {
-                    SearchValue = searchValue,
+                    SearchValue = searchValue ?? "",
                     Page = page,
-                    PageSize = pageSize
+                    PageSize = pageSize,
+                    Status = string.IsNullOrWhiteSpace(status) ? OrderStatusEnum.All : (OrderStatusEnum)int.Parse(status)
                 };
 
+                if (!string.IsNullOrWhiteSpace(dateFrom) && DateTime.TryParse(dateFrom, out var fromDate))
+                {
+                    input.DateFrom = fromDate;
+                }
+                if (!string.IsNullOrWhiteSpace(dateTo) && DateTime.TryParse(dateTo, out var toDate))
+                {
+                    input.DateTo = toDate.AddDays(1);
+                }
+
                 var orders = SalesDataService.ListOrders(input);
+                
                 var model = new PagedResult<Order>
                 {
                     Page = orders.Page,
@@ -32,8 +43,9 @@ namespace SV22T1020761.Admin.Controllers
                     {
                         OrderID = order.OrderID,
                         CustomerID = order.CustomerID,
-                        CustomerName = SalesDataService.GetCustomerName(order.CustomerID),
+                        CustomerName = order.CustomerName,
                         OrderTime = order.OrderTime,
+                        OrderDate = order.OrderTime,  // Copy OrderTime to OrderDate
                         DeliveryProvince = order.DeliveryProvince,
                         DeliveryAddress = order.DeliveryAddress,
                         EmployeeID = order.EmployeeID,
@@ -41,7 +53,8 @@ namespace SV22T1020761.Admin.Controllers
                         ShipperID = order.ShipperID,
                         ShippedTime = order.ShippedTime,
                         FinishedTime = order.FinishedTime,
-                        Status = order.Status
+                        Status = order.Status,
+                        TotalAmount = order.TotalAmount  // Copy TotalAmount
                     }).ToList()
                 };
 
@@ -54,10 +67,35 @@ namespace SV22T1020761.Admin.Controllers
             }
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                var order = await SalesDataService.GetOrderAsync(id);
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                // Get order details
+                var orderDetails = await SalesDataService.ListOrderDetailsAsync(id);
+                ViewBag.OrderDetails = orderDetails;
+
+                return View(order);
+            }
+            catch (System.Exception ex)
+            {
+                TempData["Error"] = "Không thể tải chi tiết đơn hàng. Vui lòng thử lại sau.";
+                return RedirectToAction("Index");
+            }
+        }
+
         public IActionResult Create()
         {
             try
             {
+                Console.WriteLine("=== CREATE GET DEBUG ===");
+                
                 // Lấy danh sách khách hàng
                 var customersResult = PartnerDataService.ListCustomers(new PaginationSearchInput 
                 { 
@@ -65,6 +103,7 @@ namespace SV22T1020761.Admin.Controllers
                     Page = 1,
                     SearchValue = ""
                 });
+                Console.WriteLine($"Customers loaded: {customersResult.DataItems.Count}");
                 ViewBag.Customers = new SelectList(customersResult.DataItems, "CustomerID", "CustomerName");
 
                 // Lấy danh sách tỉnh thành
@@ -74,6 +113,11 @@ namespace SV22T1020761.Admin.Controllers
                     Page = 1,
                     SearchValue = ""
                 });
+                Console.WriteLine($"Provinces loaded: {provinces.DataItems.Count}");
+                foreach (var prov in provinces.DataItems)
+                {
+                    Console.WriteLine($"  - {prov}");
+                }
                 ViewBag.Provinces = new SelectList(provinces.DataItems);
 
                 // Lấy danh sách mặt hàng từ giỏ hàng (session)
@@ -84,42 +128,176 @@ namespace SV22T1020761.Admin.Controllers
             }
             catch (System.Exception ex)
             {
+                Console.WriteLine($"ERROR in Create GET: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 TempData["Error"] = "Không thể tải dữ liệu. Vui lòng thử lại sau: " + ex.Message;
                 return View(new Order());
             }
         }
 
         [HttpPost]
-        public IActionResult Create(Order order)
+        public async Task<IActionResult> Create(Order order, string cartData)
         {
             try
             {
-                if (ModelState.IsValid)
+                Console.WriteLine("=== CREATE ORDER DEBUG ===");
+                Console.WriteLine($"CartData received: {cartData}");
+                Console.WriteLine($"CustomerID: {order.CustomerID}");
+                Console.WriteLine($"DeliveryProvince: {order.DeliveryProvince}");
+                
+                if (string.IsNullOrWhiteSpace(cartData))
                 {
-                    SalesDataService.AddOrder(order);
-                    return RedirectToAction("Index");
+                    Console.WriteLine("ERROR: CartData is empty");
+                    ModelState.AddModelError("", "Vui lòng thêm sản phẩm vào giỏ hàng");
+                    return View(order);
                 }
-                return View(order);
+
+                // Parse cart data from JSON
+                using (var doc = System.Text.Json.JsonDocument.Parse(cartData))
+                {
+                    var root = doc.RootElement;
+                    Console.WriteLine($"Cart items count: {root.GetArrayLength()}");
+                    
+                    if (root.GetArrayLength() == 0)
+                    {
+                        Console.WriteLine("ERROR: Cart is empty");
+                        ModelState.AddModelError("", "Giỏ hàng không có sản phẩm");
+                        return View(order);
+                    }
+
+                    // Calculate total amount and build order details
+                    decimal totalAmount = 0;
+                    var orderDetails = new List<OrderDetail>();
+
+                    foreach (var item in root.EnumerateArray())
+                    {
+                        if (!item.TryGetProperty("productId", out var productIdElem) ||
+                            !item.TryGetProperty("quantity", out var quantityElem))
+                        {
+                            Console.WriteLine("ERROR: Missing productId or quantity");
+                            continue;
+                        }
+
+                        int productId = productIdElem.GetInt32();
+                        int quantity = quantityElem.GetInt32();
+                        Console.WriteLine($"Processing product: ID={productId}, Qty={quantity}");
+
+                        var product = CatalogDataService.GetProduct(productId);
+                        if (product == null)
+                        {
+                            Console.WriteLine($"ERROR: Product {productId} not found");
+                            ModelState.AddModelError("", $"Sản phẩm ID {productId} không tồn tại");
+                            return View(order);
+                        }
+
+                        var lineTotal = product.Price * quantity;
+                        totalAmount += lineTotal;
+
+                        orderDetails.Add(new OrderDetail
+                        {
+                            ProductID = productId,
+                            Quantity = quantity,
+                            SalePrice = product.Price
+                        });
+                    }
+
+                    if (orderDetails.Count == 0)
+                    {
+                        Console.WriteLine("ERROR: No valid order details");
+                        ModelState.AddModelError("", "Giỏ hàng không có sản phẩm hợp lệ");
+                        return View(order);
+                    }
+
+                    // Validate required fields
+                    if (order.CustomerID <= 0)
+                    {
+                        Console.WriteLine($"ERROR: Invalid CustomerID={order.CustomerID}");
+                        ModelState.AddModelError("CustomerID", "Vui lòng chọn khách hàng");
+                        return View(order);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(order.DeliveryProvince))
+                    {
+                        Console.WriteLine("ERROR: DeliveryProvince is empty");
+                        ModelState.AddModelError("DeliveryProvince", "Vui lòng chọn tỉnh/thành");
+                        return View(order);
+                    }
+
+                    // Set order properties
+                    var orderRequest = new OrderCreateRequest
+                    {
+                        CustomerID = order.CustomerID,
+                        OrderTime = DateTime.Now,
+                        DeliveryProvince = order.DeliveryProvince,
+                        DeliveryAddress = order.DeliveryAddress,
+                        Status = OrderStatusEnum.New,
+                        EmployeeID = null,
+                        AcceptTime = null,
+                        ShipperID = null,
+                        ShippedTime = null,
+                        FinishedTime = null
+                    };
+
+                    Console.WriteLine($"Creating order with {orderDetails.Count} items, Total={totalAmount}");
+                    
+                    // Create order and order details
+                    int orderId = await SalesDataService.AddOrderAsync(orderRequest, orderDetails);
+                    Console.WriteLine($"Order created successfully: ID={orderId}");
+                    
+                    if (orderId > 0)
+                    {
+                        TempData["Success"] = $"Tạo đơn hàng #{orderId} thành công!";
+                        return RedirectToAction("Details", new { id = orderId });
+                    }
+                    else
+                    {
+                        Console.WriteLine("ERROR: orderId <= 0");
+                        ModelState.AddModelError("", "Không thể tạo đơn hàng. Vui lòng thử lại.");
+                        return View(order);
+                    }
+                }
             }
             catch (System.Exception ex)
             {
-                TempData["Error"] = "Không thể tạo đơn hàng. Vui lòng thử lại sau.";
+                Console.WriteLine($"EXCEPTION: {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                TempData["Error"] = "Không thể tạo đơn hàng: " + ex.Message;
                 return View(order);
             }
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             try
             {
-                var order = SalesDataService.GetOrder(id);
+                var order = await SalesDataService.GetOrderAsync(id);
                 if (order == null)
                 {
                     return NotFound();
                 }
-                return View(order);
+
+                // Convert OrderViewInfo to Order for the form
+                var formModel = new Order
+                {
+                    OrderID = order.OrderID,
+                    CustomerID = order.CustomerID,
+                    CustomerName = order.CustomerName,
+                    OrderTime = order.OrderTime,
+                    OrderDate = order.OrderTime,
+                    DeliveryProvince = order.DeliveryProvince,
+                    DeliveryAddress = order.DeliveryAddress,
+                    EmployeeID = order.EmployeeID,
+                    AcceptTime = order.AcceptTime,
+                    ShipperID = order.ShipperID,
+                    ShippedTime = order.ShippedTime,
+                    FinishedTime = order.FinishedTime,
+                    Status = order.Status,
+                    TotalAmount = order.TotalAmount
+                };
+
+                return View(formModel);
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 TempData["Error"] = "Không thể tải đơn hàng. Vui lòng thử lại sau.";
                 return RedirectToAction("Index");
@@ -127,21 +305,71 @@ namespace SV22T1020761.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Order order)
+        public async Task<IActionResult> Edit(int id, string action)
         {
             try
             {
-                if (ModelState.IsValid)
+                var orderView = await SalesDataService.GetOrderAsync(id);
+                if (orderView == null)
                 {
-                    SalesDataService.UpdateOrder(order);
-                    return RedirectToAction("Index");
+                    return NotFound();
                 }
-                return View(order);
+
+                // Convert to OrderCreateRequest for update
+                var orderRequest = new OrderCreateRequest
+                {
+                    CustomerID = orderView.CustomerID,
+                    OrderTime = orderView.OrderTime,
+                    DeliveryProvince = orderView.DeliveryProvince,
+                    DeliveryAddress = orderView.DeliveryAddress,
+                    EmployeeID = orderView.EmployeeID,
+                    AcceptTime = orderView.AcceptTime,
+                    ShipperID = orderView.ShipperID,
+                    ShippedTime = orderView.ShippedTime,
+                    FinishedTime = orderView.FinishedTime,
+                    Status = orderView.Status
+                };
+
+                // Update order status based on action
+                switch (action)
+                {
+                    case "New":
+                        orderRequest.Status = OrderStatusEnum.New;
+                        break;
+                    case "Accept":
+                        if (orderRequest.Status != OrderStatusEnum.New) throw new InvalidOperationException("Chỉ có thể duyệt đơn mới");
+                        orderRequest.Status = OrderStatusEnum.Accepted;
+                        orderRequest.AcceptTime = DateTime.Now;
+                        break;
+                    case "Ship":
+                        if (orderRequest.Status != OrderStatusEnum.Accepted) throw new InvalidOperationException("Chỉ có thể chuyển đơn đã duyệt");
+                        orderRequest.Status = OrderStatusEnum.Shipping;
+                        orderRequest.ShippedTime = DateTime.Now;
+                        break;
+                    case "Complete":
+                        if (orderRequest.Status != OrderStatusEnum.Shipping) throw new InvalidOperationException("Chỉ có thể hoàn tất đơn đang giao");
+                        orderRequest.Status = OrderStatusEnum.Completed;
+                        orderRequest.FinishedTime = DateTime.Now;
+                        break;
+                    case "Reject":
+                        if (orderRequest.Status != OrderStatusEnum.New) throw new InvalidOperationException("Chỉ có thể từ chối đơn mới");
+                        orderRequest.Status = OrderStatusEnum.Rejected;
+                        break;
+                    case "Cancel":
+                        if (orderRequest.Status == OrderStatusEnum.Completed || orderRequest.Status == OrderStatusEnum.Cancelled || orderRequest.Status == OrderStatusEnum.Rejected)
+                            throw new InvalidOperationException("Không thể hủy đơn đã hoàn tất/hủy/từ chối");
+                        orderRequest.Status = OrderStatusEnum.Cancelled;
+                        break;
+                }
+
+                await SalesDataService.UpdateOrderAsync(orderRequest, id);
+                TempData["Success"] = "Cập nhật trạng thái đơn hàng thành công.";
+                return RedirectToAction("Details", new { id });
             }
             catch (System.Exception ex)
             {
-                TempData["Error"] = "Không thể cập nhật đơn hàng. Vui lòng thử lại sau.";
-                return View(order);
+                TempData["Error"] = ex.Message ?? "Không thể cập nhật đơn hàng. Vui lòng thử lại sau.";
+                return RedirectToAction("Edit", new { id });
             }
         }
 

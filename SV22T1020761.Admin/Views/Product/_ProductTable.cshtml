@@ -28,10 +28,10 @@
                         <td>@item.Price</td>
                         <td>@item.Quantity</td>
                         <td class="text-center text-nowrap">
-                            <a href="#" class="btn btn-sm btn-primary open-modal" data-url="@Url.Action("Form","Product", new { id = item.ProductID })">
+                            <a href="@Url.Action("Edit","Product", new { id = item.ProductID })" class="btn btn-sm btn-primary">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a href="#" class="btn btn-sm btn-danger open-modal" data-url="@Url.Action("Form","Product", new { id = item.ProductID })?delete=true">
+                            <a href="#" class="btn btn-sm btn-danger open-modal" data-url="@Url.Action("Form","Product", new { id = item.ProductID, delete = true })">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </td>

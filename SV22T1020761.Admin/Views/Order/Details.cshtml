@@ -1,0 +1,128 @@
+@model SV22T1020761.Models.Sales.OrderViewInfo
+@using SV22T1020761.Models.Sales
+@{
+    ViewBag.Title = "Chi tiết Đơn hàng";
+    TempData.Keep();
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="mb-3">
+    <a href="~/Order/Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại
+    </a>
+    <a href="~/Order/Edit/@Model.OrderID" class="btn btn-primary">
+        <i class="bi bi-pencil me-1"></i> Xử lý
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Thông tin đơn hàng #@Model.OrderID</h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Khách hàng:</strong> @Model.CustomerName</p>
+                <p><strong>Ngày đặt:</strong> @Model.OrderTime.ToString("dd/MM/yyyy")</p>
+                <p><strong>Tỉnh/thành:</strong> @Model.DeliveryProvince</p>
+                <p><strong>Địa chỉ giao:</strong> @Model.DeliveryAddress</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Trạng thái:</strong> 
+                    <span class="badge @GetStatusBadgeClass(Model.Status)">
+                        @GetStatusText(Model.Status)
+                    </span>
+                </p>
+                <p><strong>Nhân viên xử lý:</strong> @(Model.EmployeeID.HasValue ? "Nhân viên " + Model.EmployeeID : "Chưa giao")</p>
+                <p><strong>Người giao:</strong> @(Model.ShipperID.HasValue ? "Shipper " + Model.ShipperID : "Chưa chỉ định")</p>
+                <p><strong>Tổng tiền:</strong> <strong style="color: #d9534f;">@(Model.TotalAmount.HasValue ? Model.TotalAmount.Value.ToString("C0") : "0")</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">Chi tiết sản phẩm</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Tên sản phẩm</th>
+                    <th class="text-end">Giá</th>
+                    <th class="text-center">Số lượng</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var orderDetails = ViewBag.OrderDetails as List<SV22T1020761.Models.Sales.OrderDetailViewInfo>;
+                    if (orderDetails != null && orderDetails.Count > 0)
+                    {
+                        foreach (var detail in orderDetails)
+                        {
+                            var lineTotal = detail.SalePrice * detail.Quantity;
+                            <tr>
+                                <td>@detail.ProductName</td>
+                                <td class="text-end">@detail.SalePrice.ToString("C0")</td>
+                                <td class="text-center">@detail.Quantity</td>
+                                <td class="text-end">@lineTotal.ToString("C0")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">Chưa có dữ liệu</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(OrderStatusEnum status)
+    {
+        return status switch
+        {
+            OrderStatusEnum.Draft => "bg-secondary",
+            OrderStatusEnum.New => "bg-info",
+            OrderStatusEnum.Accepted => "bg-primary",
+            OrderStatusEnum.Shipping => "bg-warning",
+            OrderStatusEnum.Completed => "bg-success",
+            OrderStatusEnum.Cancelled => "bg-dark",
+            OrderStatusEnum.Rejected => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(OrderStatusEnum status)
+    {
+        return status switch
+        {
+            OrderStatusEnum.Draft => "Nháp",
+            OrderStatusEnum.New => "Mới",
+            OrderStatusEnum.Accepted => "Đã duyệt",
+            OrderStatusEnum.Shipping => "Đang giao",
+            OrderStatusEnum.Completed => "Hoàn tất",
+            OrderStatusEnum.Cancelled => "Bị hủy",
+            OrderStatusEnum.Rejected => "Bị từ chối",
+            _ => "Không xác định"
+        };
+    }
+}

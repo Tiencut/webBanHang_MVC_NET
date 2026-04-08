@@ -98,8 +98,14 @@
                 });
             });
             document.querySelectorAll(".open-modal").forEach(element => {                
-                 element.addEventListener("click", function (e) {                    
-                    openModal(e, this);
+                 element.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    var url = this.getAttribute('data-url') || this.getAttribute('href');
+                    if (url && !url.startsWith('~')) {
+                        openModal(url);
+                    } else if (url && url.startsWith('~')) {
+                        openModal(url.replace('~', ''));
+                    }
                 });
             });
 

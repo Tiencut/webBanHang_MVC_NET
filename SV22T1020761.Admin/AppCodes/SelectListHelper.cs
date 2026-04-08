@@ -108,5 +108,57 @@ namespace SV22T1020761.Admin.AppCodes
                 new SelectListItem() { Value = OrderStatusEnum.Cancelled.ToString(), Text = OrderStatusEnum.Cancelled.GetDescription() },
             };
         }
+
+        /// <summary>
+        /// Danh sách loại hàng (synchronous version)
+        /// </summary>
+        public static List<SelectListItem> GetCategories()
+        {
+            var list = new List<SelectListItem>();
+            try
+            {
+                var input = new PaginationSearchInput() { Page = 1, PageSize = 0, SearchValue = "" };
+                var result = CatalogDataService.ListCategories(input);
+                if (result?.DataItems != null)
+                {
+                    foreach (var item in result.DataItems)
+                    {
+                        list.Add(new SelectListItem()
+                        {
+                            Value = item.CategoryID.ToString(),
+                            Text = item.CategoryName
+                        });
+                    }
+                }
+            }
+            catch { }
+            return list;
+        }
+
+        /// <summary>
+        /// Danh sách nhà cung cấp (synchronous version)
+        /// </summary>
+        public static List<SelectListItem> GetSuppliers()
+        {
+            var list = new List<SelectListItem>();
+            try
+            {
+                var input = new PaginationSearchInput() { Page = 1, PageSize = 0, SearchValue = "" };
+                var result = PartnerDataService.ListSuppliers(input);
+                if (result?.DataItems != null)
+                {
+                    foreach (var item in result.DataItems)
+                    {
+                        list.Add(new SelectListItem()
+                        {
+                            Value = item.SupplierID.ToString(),
+                            Text = item.SupplierName
+                        });
+                    }
+                }
+            }
+            catch { }
+            return list;
+        }
     }
 }

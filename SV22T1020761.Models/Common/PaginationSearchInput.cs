@@ -50,5 +50,15 @@
         /// để lấy dữ liệu cho trang hiện tại
         /// </summary>
         public int Offset => PageSize > 0 ? (Page - 1) * PageSize : 0;
+
+        /// <summary>
+        /// ID Loại hàng (Category) - dùng cho lọc sản phẩm
+        /// </summary>
+        public int CategoryID { get; set; } = 0;
+
+        /// <summary>
+        /// ID Nhà cung cấp (Supplier) - dùng cho lọc sản phẩm
+        /// </summary>
+        public int SupplierID { get; set; } = 0;
     }
 }

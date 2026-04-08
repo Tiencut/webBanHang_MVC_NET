@@ -1,52 +1,97 @@
 @{
     Layout = null;
 }
-@model SV22T1020761.Models.Catalog.Product
+@model SV22T1020761.Models.Catalog.ProductDetailsViewModel
 
 <div class="modal-header">
-    <h5 class="modal-title">@(Model?.ProductID > 0 ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm")</h5>
+    <h5 class="modal-title">@(Model?.Product?.ProductID > 0 ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm")</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
-<form id="formProduct" method="post" enctype="multipart/form-data" action="@(Model?.ProductID > 0 ? Url.Action("Edit", "Product") : Url.Action("Create", "Product"))">
+<form id="formProduct" method="post" enctype="multipart/form-data" action="@(Model?.Product?.ProductID > 0 ? Url.Action("Edit", "Product", new { id = Model.Product.ProductID }) : Url.Action("Create", "Product"))">
     @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="ProductID" />
+    <input type="hidden" name="Product.ProductID" value="@Model?.Product?.ProductID" />
     
-    <div class="modal-body">
+    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
         
-        <div class="mb-3">
-            <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-box"></i></span>
-                <input asp-for="ProductName" class="form-control" placeholder="Nhập tên sản phẩm" required />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-box"></i></span>
+                        <input asp-for="Product.ProductName" class="form-control" placeholder="Nhập tên sản phẩm" required />
+                    </div>
+                    <span asp-validation-for="Product.ProductName" class="text-danger small d-block mt-1"></span>
+                </div>
             </div>
-            <span asp-validation-for="ProductName" class="text-danger small d-block mt-1"></span>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">Giá <span class="text-danger">*</span></label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Giá <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                        <input asp-for="Product.Price" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+                    </div>
+                    <span asp-validation-for="Product.Price" class="text-danger small d-block mt-1"></span>
+                </div>
             </div>
-            <span asp-validation-for="Price" class="text-danger small d-block mt-1"></span>
         </div>
-        
+
         <div class="mb-3">
-            <label class="form-label">Số lượng</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-bag"></i></span>
-                <input asp-for="Quantity" type="number" class="form-control" placeholder="0" />
+            <label class="form-label">Mô tả sản phẩm</label>
+            <textarea asp-for="Product.ProductDescription" class="form-control" rows="2" placeholder="Nhập mô tả..."></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Nhà cung cấp</label>
+                    <select asp-for="Product.SupplierID" class="form-select">
+                        <option value="0">-- Chọn nhà cung cấp --</option>
+                        @foreach (var supplier in ViewBag.Suppliers ?? new List<dynamic>())
+                        {
+                            <option value="@supplier.SupplierID">@supplier.SupplierName</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <span asp-validation-for="Quantity" class="text-danger small d-block mt-1"></span>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Loại hàng</label>
+                    <select asp-for="Product.CategoryID" class="form-select">
+                        <option value="0">-- Chọn loại hàng --</option>
+                        @foreach (var category in ViewBag.Categories ?? new List<dynamic>())
+                        {
+                            <option value="@category.CategoryID">@category.CategoryName</option>
+                        }
+                    </select>
+                </div>
+            </div>
         </div>
-        
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Đơn vị tính</label>
+                    <input asp-for="Product.Unit" class="form-control" placeholder="Ví dụ: cái, bộ, hộp..." />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Số lượng</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-bag"></i></span>
+                        <input asp-for="Product.Quantity" type="number" class="form-control" placeholder="0" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="mb-3">
-            <label class="form-label">Ảnh sản phẩm</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-image"></i></span>
-                <input type="file" name="uploadPhoto" class="form-control" accept="image/*" />
+            <div class="form-check">
+                <input type="checkbox" asp-for="Product.IsSelling" class="form-check-input" id="IsSelling" />
+                <label class="form-check-label" for="IsSelling">Đang bán</label>
             </div>
         </div>
     </div>
@@ -60,32 +105,44 @@
         </button>
     </div>
 </form>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var form = document.getElementById('formProduct');
+        const form = document.getElementById('formProduct');
+        if (!form) return;
+        
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            if (!$(form).valid()) return; // client-side validation
-            var url = form.action;
-            var formData = new FormData(form);
+            
+            // Client-side validation
+            if (!$(form).valid()) return;
+            
+            const url = form.action;
+            const formData = new FormData(form);
+            
             try {
-                var res = await fetch(url, {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     body: formData
                 });
-                if (res.ok) {
-                    var html = await res.text();
-                    document.getElementById('productTableContainer').innerHTML = html;
-                    var modalEl = document.getElementById('dialogModal');
-                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
+                
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    // JSON response - thành công
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.href = data.redirectUrl || '/Product/Index';
+                    }
                 } else {
-                    var html = await res.text();
+                    // HTML response - có lỗi validation
+                    const html = await response.text();
                     document.querySelector('#dialogModal .modal-content').innerHTML = html;
                 }
             } catch (err) {
-                showToast('L?i khi Lưu: ' + err.message, 'error');
+                console.error('Error:', err);
+                alert('Lỗi khi lưu: ' + err.message);
             }
         });
     });

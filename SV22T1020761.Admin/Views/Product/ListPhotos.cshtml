@@ -1,3 +1,5 @@
+@model SV22T1020761.Models.Catalog.ProductDetailsViewModel
+@using System.Linq;
 @{
     Layout = null;
 }
@@ -13,7 +15,7 @@
                         </h6>
                     </div>
                     <div class="col text-end">
-                        <a class="btn btn-sm btn-primary" href="~/Product/CreatePhoto/123">
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("CreatePhoto", "Product", new { id = Model.Product.ProductID })">
                             <i class="bi bi-plus-circle me-1"></i>
                             Thêm ảnh
                         </a>
@@ -33,27 +35,43 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 1; i <= 5; i++)
+                        @if (Model.Photos != null && Model.Photos.Count > 0)
+                        {
+                            @foreach (var photo in Model.Photos.OrderBy(x => x.DisplayOrder))
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <img src="~/images/products/@photo.Photo"
+                                        class="img-thumbnail"
+                                        style="max-height:80px;" />
+                                    </td>
+                                    <td>@photo.Description</td>
+                                    <td class="text-center">@photo.DisplayOrder</td>
+                                    <td class="text-center">
+                                        @if (photo.IsHidden)
+                                        {
+                                            <span class="badge bg-danger">Ẩn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Hiện</span>
+                                        }
+                                    </td>
+                                    <td class="text-center text-nowrap">
+                                        <a class="btn btn-sm btn-primary" href="~/Product/EditPhoto/@Model.Product.ProductID?photoId=@photo.PhotoID">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-danger" href="~/Product/DeletePhoto/@Model.Product.ProductID?photoId=@photo.PhotoID">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td class="text-center">
-                                    <img src="~/images/products/demo.png"
-                                    class="img-thumbnail"
-                                    style="max-height:80px;" />
-                                </td>
-                                <td>Ảnh mặt trước sản phẩm</td>
-                                <td class="text-center">@i</td>
-                                <td class="text-center">
-                                    <span class="badge bg-success">Hiện</span>
-                                </td>
-                                <td class="text-center text-nowrap">
-                                    <a class="btn btn-sm btn-primary" href="~/Product/EditPhoto/123?photoId=456">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a class="btn btn-sm btn-danger" href="~/Product/DeletePhoto/123?photoId=456">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
+                                <td colspan="5" class="text-center text-muted">Chưa có ảnh nào. <a href="@Url.Action("CreatePhoto", "Product", new { id = Model.Product.ProductID })">Thêm ảnh</a></td>
                             </tr>
                         }
                     </tbody>

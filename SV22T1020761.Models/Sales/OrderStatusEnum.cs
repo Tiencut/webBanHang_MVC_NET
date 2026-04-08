@@ -6,6 +6,10 @@
     public enum OrderStatusEnum
     {
         /// <summary>
+        /// Không filter theo trạng thái (lấy tất cả)
+        /// </summary>
+        All = -99,
+        /// <summary>
         /// Đơn hàng bị từ chối
         /// </summary>
         Rejected = -2,

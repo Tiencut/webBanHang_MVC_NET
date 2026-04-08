@@ -30,7 +30,7 @@ namespace SV22T1020761.BusinessLayers
         {
             try
             {
-                // If input is ProductSearchInput, use it as-is; otherwise map basic fields
+                // Map to ProductSearchInput to include CategoryID and SupplierID
                 ProductSearchInput pInput;
                 if (input is ProductSearchInput productInput)
                 {
@@ -42,7 +42,9 @@ namespace SV22T1020761.BusinessLayers
                     {
                         Page = input?.Page ?? 1,
                         PageSize = input?.PageSize ?? 10,
-                        SearchValue = input?.SearchValue ?? string.Empty
+                        SearchValue = input?.SearchValue ?? string.Empty,
+                        CategoryID = input?.CategoryID ?? 0,
+                        SupplierID = input?.SupplierID ?? 0
                     };
                 }
                 

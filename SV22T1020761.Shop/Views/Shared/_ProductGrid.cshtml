@@ -8,9 +8,9 @@
         {
             <div class="col">
                 <div class="product-card h-100">
-                    @if (!string.IsNullOrEmpty(p.Photo))
+                    @if (!string.IsNullOrEmpty(p.Photo) && !p.IsSelling)
                     {
-                        <span class="product-badge">@((p.IsSelling) ? "Bán" : "Ngưng bán")</span>
+                        <span class="product-badge">Ngưng bán</span>
                     }
                     <div class="product-actions">
                         <a class="btn btn-sm btn-light" asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductID" title="Xem chi tiết">

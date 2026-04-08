@@ -1,56 +1,84 @@
 @model System.Collections.Generic.List<SV22T1020761.Shop.AppCodes.CartItem>
 @using System.Linq
-<table class="table">
-    <thead>
-        <tr>
-            <th style="width:80px;">Ảnh</th>
-            <th>Sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Thành tiền</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var item in Model)
-        {
-            <tr>
-                <td>
-                    <img src="~/admin-images/products/@item.Photo" style="width:80px;height:80px;object-fit:cover;" 
-                         onerror="this.onerror=null;this.src='~/admin-images/products/nophoto.png'" />
-                </td>
-                <td>@item.ProductName</td>
-                <td>
-                    <form class="d-inline" method="post" asp-controller="Cart" asp-action="Update">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="productId" value="@item.ProductID" />
-                        <input type="number" name="qty" value="@item.Qty" min="1" style="width:80px;" />
-                        <button class="btn btn-sm btn-primary">Cập nhật</button>
-                    </form>
-                </td>
-                <td>@item.Price.ToString("N0") đ</td>
-                <td>@{var itemTotal = item.Price * item.Qty;}<span>@itemTotal.ToString("N0") đ</span></td>
-                <td>
-                    <form method="post" asp-controller="Cart" asp-action="Remove">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="productId" value="@item.ProductID" />
-                        <button class="btn btn-sm btn-danger">Xoá</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 
 @{
-    var total = Model.Sum(i => i.Price * i.Qty);
+    var itemCount = Model?.Count ?? 0;
 }
-<div class="d-flex justify-content-between align-items-center border-top pt-3">
-    <div>
-        <div class="h5 mb-0">Tổng: <strong class="text-primary">@total.ToString("N0") đ</strong></div>
-        <div class="text-muted small">(Chưa bao gồm phí vận chuyển)</div>
+
+@if (itemCount == 0)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-info-circle me-2"></i>Giỏ hàng của bạn đang trống
     </div>
-    <div>
-        <a class="btn btn-success btn-lg" asp-controller="Checkout" asp-action="Index">Đặt mua hàng</a>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width:80px;">Ảnh</th>
+                <th>Sản phẩm</th>
+                <th style="width:150px;">Số lượng</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
+                <th style="width:80px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="~/admin-images/products/@item.Photo" style="width:80px;height:80px;object-fit:cover;" 
+                             onerror="this.onerror=null;this.src='~/admin-images/products/nophoto.png'" />
+                    </td>
+                    <td>
+                        <strong>@item.ProductName</strong>
+                    </td>
+                    <td>
+                        <form class="d-inline update-form" method="post" asp-controller="Cart" asp-action="Update">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@item.ProductID" />
+                            <div class="input-group">
+                                <input type="number" name="qty" value="@item.Qty" min="1" max="999" 
+                                       class="form-control qty-input text-center" 
+                                       style="width:70px;" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
+                            </div>
+                        </form>
+                    </td>
+                    <td>@item.Price.ToString("N0") đ</td>
+                    <td>
+                        <strong>@((item.Price * item.Qty).ToString("N0")) đ</strong>
+                    </td>
+                    <td>
+                        <form method="post" asp-controller="Cart" asp-action="Remove" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@item.ProductID" />
+                            <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
+        <div>
+            <div class="h5 mb-0">Tổng: <strong class="text-primary">@(Model.Sum(i => i.Price * i.Qty).ToString("N0")) đ</strong></div>
+            <div class="text-muted small">(Chưa bao gồm phí vận chuyển)</div>
+        </div>
+        <div>
+            <form method="post" asp-controller="Cart" asp-action="DeleteCart" style="display:inline;" id="deleteCartForm">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xoá toàn bộ giỏ hàng?')">
+                    <i class="bi bi-trash me-2"></i>Xoá giỏ hàng
+                </button>
+            </form>
+            <a class="btn btn-success btn-lg" asp-controller="Checkout" asp-action="Index">
+                <i class="bi bi-bag-check me-2"></i>Đặt mua hàng
+            </a>
+        </div>
     </div>
-</div>
+}
+}

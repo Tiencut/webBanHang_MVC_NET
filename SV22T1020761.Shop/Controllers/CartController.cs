@@ -176,41 +176,77 @@ namespace SV22T1020761.Shop.Controllers
         public async Task<IActionResult> Update(int productId, int qty)
         {
             var username = User?.Identity?.Name ?? "";
+            _logger.LogInformation($"Cart.Update: username={username}, productId={productId}, qty={qty}");
+            
+            // Validate qty
+            if (qty <= 0)
+            {
+                _logger.LogWarning($"Cart.Update: Invalid qty={qty}");
+                return Json(new { success = false, message = "Số lượng phải lớn hơn 0" });
+            }
+            
             var ua = SV22T1020761.Shop.Services.AccountService.GetUser(username);
-            if (ua == null || !int.TryParse(ua.UserId, out var customerId)) return Unauthorized();
+            if (ua == null || !int.TryParse(ua.UserId, out var customerId)) 
+            {
+                _logger.LogError($"Cart.Update: Invalid user");
+                return Json(new { success = false, message = "Người dùng không hợp lệ" });
+            }
 
             try
             {
                 var repo = new OrderRepository(SV22T1020761.BusinessLayers.Configuration.ConnectionString);
                 var orders = SV22T1020761.BusinessLayers.SalesDataService.ListOrders(
-                    new SV22T1020761.Models.Sales.OrderSearchInput { Page = 1, PageSize = 100 });
-                
-                var draftOrder = orders?.DataItems?.FirstOrDefault(o => 
-                    o.CustomerID == customerId && 
+                    new SV22T1020761.Models.Sales.OrderSearchInput 
+                    { 
+                        Page = 1, 
+                        PageSize = 100,
+                        Status = SV22T1020761.Models.Sales.OrderStatusEnum.New,
+                        CustomerID = customerId
+                    });
+
+                var draftOrder = orders?.DataItems?.FirstOrDefault(o =>
                     o.Status == SV22T1020761.Models.Sales.OrderStatusEnum.New);
+
+                _logger.LogInformation($"Cart.Update: draftOrder={draftOrder?.OrderID ?? 0}, qty={qty}");
 
                 if (draftOrder != null)
                 {
-                    if (qty > 0)
+                    // Lấy SalePrice hiện tại từ DB
+                    var detailView = await repo.GetDetailAsync(draftOrder.OrderID, productId);
+                    if (detailView == null)
                     {
-                        var detail = new SV22T1020761.Models.Sales.OrderDetail
-                        {
-                            OrderID = draftOrder.OrderID,
-                            ProductID = productId,
-                            Quantity = qty,
-                            SalePrice = 0 // Only Quantity/OrderID/ProductID matter for update
-                        };
-                        await repo.UpdateDetailAsync(detail);
+                        _logger.LogWarning($"Cart.Update: Không tìm thấy chi tiết sản phẩm trong đơn hàng. OrderID={draftOrder.OrderID}, ProductID={productId}");
+                        return Json(new { success = false, message = "Không tìm thấy sản phẩm trong đơn hàng!" });
                     }
-                    else
+                    var detail = new SV22T1020761.Models.Sales.OrderDetail
                     {
-                        await repo.DeleteDetailAsync(draftOrder.OrderID, productId);
-                    }
+                        OrderID = draftOrder.OrderID,
+                        ProductID = productId,
+                        Quantity = qty,
+                        SalePrice = detailView.SalePrice // giữ nguyên giá cũ
+                    };
+                    await repo.UpdateDetailAsync(detail);
+                    _logger.LogInformation($"Cart.Update: Updated detail - OrderID={draftOrder.OrderID}, ProductID={productId}, Qty={qty}, SalePrice={detail.SalePrice}");
+                }
+                else
+                {
+                    _logger.LogWarning($"Cart.Update: No draft order found for customerId={customerId}");
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Cart Update Error: {ex.Message}");
+                return Json(new { success = false, message = $"Lỗi: {ex.Message}" });
+            }
 
             var cartItems = await GetCartFromDB(customerId);
+            _logger.LogInformation($"Cart.Update: Returning partial with {cartItems?.Count ?? 0} items");
+            
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, message = "Cập nhật thành công" });
+            }
+            
             return PartialView("~/Views/Cart/_CartTable.cshtml", cartItems ?? new List<CartItem>());
         }
 
@@ -218,27 +254,61 @@ namespace SV22T1020761.Shop.Controllers
         public async Task<IActionResult> Remove(int productId)
         {
             var username = User?.Identity?.Name ?? "";
+            _logger.LogInformation($"Cart.Remove: username={username}, productId={productId}");
+            
             var ua = SV22T1020761.Shop.Services.AccountService.GetUser(username);
-            if (ua == null || !int.TryParse(ua.UserId, out var customerId)) return Unauthorized();
+            if (ua == null || !int.TryParse(ua.UserId, out var customerId))
+            {
+                _logger.LogWarning($"Cart.Remove: Invalid user - ua={ua}, username={username}");
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Bạn cần đăng nhập!" });
+                return Unauthorized();
+            }
 
+            _logger.LogInformation($"Cart.Remove: customerId={customerId}");
+            bool deleted = false;
             try
             {
                 var repo = new OrderRepository(SV22T1020761.BusinessLayers.Configuration.ConnectionString);
                 var orders = SV22T1020761.BusinessLayers.SalesDataService.ListOrders(
-                    new SV22T1020761.Models.Sales.OrderSearchInput { Page = 1, PageSize = 100 });
+                    new SV22T1020761.Models.Sales.OrderSearchInput 
+                    { 
+                        Page = 1, 
+                        PageSize = 100,
+                        Status = SV22T1020761.Models.Sales.OrderStatusEnum.New,
+                        CustomerID = customerId
+                    });
+
+                _logger.LogInformation($"Cart.Remove: Found {orders?.DataItems?.Count ?? 0} orders");
                 
-                var draftOrder = orders?.DataItems?.FirstOrDefault(o => 
-                    o.CustomerID == customerId && 
+                var draftOrder = orders?.DataItems?.FirstOrDefault(o =>
                     o.Status == SV22T1020761.Models.Sales.OrderStatusEnum.New);
+
+                _logger.LogInformation($"Cart.Remove: draftOrder={draftOrder?.OrderID ?? 0}, Status={draftOrder?.Status}");
 
                 if (draftOrder != null)
                 {
-                    await repo.DeleteDetailAsync(draftOrder.OrderID, productId);
+                    _logger.LogInformation($"Cart.Remove: Calling DeleteDetailAsync(OrderID={draftOrder.OrderID}, ProductID={productId})");
+                    deleted = await repo.DeleteDetailAsync(draftOrder.OrderID, productId);
+                    _logger.LogInformation($"Cart.Remove: DeleteDetailAsync result: deleted={deleted}");
+                }
+                else
+                {
+                    _logger.LogWarning($"Cart.Remove: No draft order found for customerId={customerId}");
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Cart.Remove Error: {ex.Message}");
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = $"Lỗi: {ex.Message}" });
+            }
 
             var cartItems = await GetCartFromDB(customerId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = deleted, message = deleted ? "Đã xoá sản phẩm khỏi giỏ hàng" : "Không xoá được sản phẩm!" });
+            }
             return PartialView("~/Views/Cart/_CartTable.cshtml", cartItems ?? new List<CartItem>());
         }
 
@@ -285,6 +355,7 @@ namespace SV22T1020761.Shop.Controllers
                     {
                         foreach (var detail in details)
                         {
+                            _logger.LogInformation($"Detail: ProductID={detail.ProductID}, Quantity={detail.Quantity}, SalePrice={detail.SalePrice}");
                             cartItems.Add(new CartItem
                             {
                                 ProductID = detail.ProductID,
@@ -304,6 +375,60 @@ namespace SV22T1020761.Shop.Controllers
             }
 
             return cartItems;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCart()
+        {
+            var username = User?.Identity?.Name ?? "";
+            var ua = SV22T1020761.Shop.Services.AccountService.GetUser(username);
+            if (ua == null || !int.TryParse(ua.UserId, out var customerId))
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Bạn cần đăng nhập!" });
+                return Unauthorized();
+            }
+
+            bool deleted = false;
+            try
+            {
+                var repo = new OrderRepository(SV22T1020761.BusinessLayers.Configuration.ConnectionString);
+                var orders = SV22T1020761.BusinessLayers.SalesDataService.ListOrders(
+                    new SV22T1020761.Models.Sales.OrderSearchInput 
+                    { 
+                        Page = 1, 
+                        PageSize = 100,
+                        Status = SV22T1020761.Models.Sales.OrderStatusEnum.New,
+                        CustomerID = customerId
+                    });
+
+                var draftOrder = orders?.DataItems?.FirstOrDefault(o =>
+                    o.Status == SV22T1020761.Models.Sales.OrderStatusEnum.New);
+
+                if (draftOrder != null)
+                {
+                    deleted = await repo.DeleteAsync(draftOrder.OrderID);
+                    _logger.LogInformation($"Cart.DeleteCart: Deleted OrderID={draftOrder.OrderID}");
+                }
+                else
+                {
+                    _logger.LogWarning($"Cart.DeleteCart: No draft order found for customerId={customerId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Cart.DeleteCart Error: {ex.Message}");
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = $"Lỗi: {ex.Message}" });
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = deleted, message = deleted ? "Đã xoá giỏ hàng" : "Không xoá được giỏ hàng!" });
+            }
+
+            var cartItems = await GetCartFromDB(customerId);
+            return PartialView("~/Views/Cart/_CartTable.cshtml", cartItems ?? new List<CartItem>());
         }
     }
 }

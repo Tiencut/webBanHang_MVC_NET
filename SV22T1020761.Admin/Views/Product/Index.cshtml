@@ -1,4 +1,5 @@
 @model SV22T1020761.Models.Common.PagedResult<SV22T1020761.Models.Catalog.Product>
+@using SV22T1020761.Admin.AppCodes
 @{
     ViewBag.Title = "Quản lý Sản phẩm";
 }
@@ -12,12 +13,57 @@
     <div class="card-body">
         <form id="formSearch" method="post" asp-action="Search" asp-controller="Product">
             @Html.AntiForgeryToken()
-            <div class="input-group">
-                <input type="text" name="SearchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Tên sản phẩm..." autofocus />
-                <button class="btn btn-info d-flex align-items-center">
-                    <i class="bi bi-search me-1"></i>
-                </button>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <input type="text" name="SearchValue" value="@Context.Request.Query["searchValue"]" class="form-control" placeholder="Tên sản phẩm..." />
+                </div>
+                <div class="col-md-3">
+                    <select name="CategoryID" class="form-control">
+                        <option value="0">-- Tất cả loại hàng --</option>
+                        @foreach (var item in SelectListHelper.GetCategories())
+                        {
+                            if (Context.Request.Query["categoryId"] == item.Value)
+                            {
+                                <option value="@item.Value" selected>@item.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="SupplierID" class="form-control">
+                        <option value="0">-- Tất cả nhà cung cấp --</option>
+                        @foreach (var item in SelectListHelper.GetSuppliers())
+                        {
+                            if (Context.Request.Query["supplierId"] == item.Value)
+                            {
+                                <option value="@item.Value" selected>@item.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
             </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="number" name="MinPrice" step="0.01" value="@Context.Request.Query["minPrice"]" class="form-control" placeholder="Giá từ..." />
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="MaxPrice" step="0.01" value="@Context.Request.Query["maxPrice"]" class="form-control" placeholder="Giá đến..." />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-info w-100 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-search me-1"></i> Tìm
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="PageSize" value="10" />
         </form>
     </div>
 </div>
@@ -43,6 +89,7 @@
                     var html = await res.text();
                     document.querySelector('#dialogModal .modal-content').innerHTML = html;
                     var modalEl = document.getElementById('dialogModal');
+                    modalEl.setAttribute('aria-hidden', 'false');
                     var modal = new bootstrap.Modal(modalEl);
                     modal.show();
                 } else {
@@ -57,11 +104,27 @@
             var form = document.getElementById('formSearch');
             var btnCreate = document.getElementById('btnCreateProduct');
             if (!form) return;
+            
+            // Xử lý click nút Bổ sung
+            if (btnCreate) {
+                btnCreate.addEventListener('click', function() {
+                    openModal('/Product/Form?id=0');
+                });
+            }
+            
             async function doSearch(page) {
                 var tokenInput = form.querySelector('input[name="__RequestVerificationToken"]');
                 var token = tokenInput ? tokenInput.value : '';
                 var data = new URLSearchParams(new FormData(form));
                 if (page) data.set('Page', page);
+                
+                // DEBUG: Log all parameters being sent
+                console.log('📤 Full data toString():', data.toString());
+                console.log('📤 MinPrice từ form:', form.querySelector('input[name="MinPrice"]').value);
+                console.log('📤 MaxPrice từ form:', form.querySelector('input[name="MaxPrice"]').value);
+                console.log('📤 PageSize từ form:', form.querySelector('input[name="PageSize"]').value);
+                console.log('📤 Page được gửi:', page);
+                
                 try {
                     var res = await fetch(form.action, {
                         method: 'POST',
@@ -77,9 +140,17 @@
                         document.getElementById('productTableContainer').innerHTML = html;
 
                         // update URL
-                        var searchVal = form.querySelector('input[name="SearchValue"], input[name="searchValue"]')?.value || '';
+                        var searchVal = form.querySelector('input[name="SearchValue"]')?.value || '';
+                        var categoryId = form.querySelector('select[name="CategoryID"]')?.value || '0';
+                        var supplierId = form.querySelector('select[name="SupplierID"]')?.value || '0';
+                        var minPrice = form.querySelector('input[name="MinPrice"]')?.value || '0';
+                        var maxPrice = form.querySelector('input[name="MaxPrice"]')?.value || '0';
                         var params = new URLSearchParams();
                         if (searchVal) params.set('searchValue', searchVal);
+                        if (categoryId && categoryId !== '0') params.set('categoryId', categoryId);
+                        if (supplierId && supplierId !== '0') params.set('supplierId', supplierId);
+                        if (minPrice && minPrice !== '0') params.set('minPrice', minPrice);
+                        if (maxPrice && maxPrice !== '0') params.set('maxPrice', maxPrice);
                         params.set('page', page || 1);
                         history.replaceState(null, '', window.location.pathname + '?' + params.toString());
                     } else {
@@ -95,10 +166,22 @@
             });
 
             document.getElementById('productTableContainer').addEventListener('click', function (e) {
+                console.log('🖱️ Click event trên table container');
                 var target = e.target.closest('a[data-page]');
-                if (target) { e.preventDefault(); doSearch(target.getAttribute('data-page')); return; }
+                if (target) { 
+                    console.log('📄 Click vào pagination');
+                    e.preventDefault(); 
+                    doSearch(target.getAttribute('data-page')); 
+                    return; 
+                }
                 var btn = e.target.closest('.open-modal');
-                if (btn) { e.preventDefault(); openModal(btn.getAttribute('data-url')); }
+                if (btn) { 
+                    console.log('✏️ Click vào open-modal button, URL:', btn.getAttribute('data-url'));
+                    e.preventDefault(); 
+                    openModal(btn.getAttribute('data-url')); 
+                } else {
+                    console.log('⚠️ Click không match .open-modal, target:', e.target);
+                }
             });
         });
     </script>

@@ -1,3 +1,5 @@
+@model SV22T1020761.Models.Catalog.ProductDetailsViewModel
+@using System.Linq;
 @{
     Layout = null;
 }
@@ -13,7 +15,7 @@
                         </h6>
                     </div>
                     <div class="col text-end">
-                        <a class="btn btn-sm btn-primary" href="~/Product/CreateAttribute/123">
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("CreateAttribute", "Product", new { id = Model.Product.ProductID })">
                             <i class="bi bi-plus"></i>
                             Thêm thuộc tính
                         </a>
@@ -32,20 +34,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 1; i <= 10; i++)
+                        @if (Model.Attributes != null && Model.Attributes.Count > 0)
+                        {
+                            @foreach (var attr in Model.Attributes.OrderBy(x => x.DisplayOrder))
+                            {
+                                <tr>
+                                    <td>@attr.AttributeName</td>
+                                    <td>@attr.AttributeValue</td>
+                                    <td class="text-center">@attr.DisplayOrder</td>
+                                    <td class="text-center text-nowrap">
+                                        <a class="btn btn-sm btn-primary" href="@Url.Action("EditAttribute", "Product", new { id = Model.Product.ProductID, attributeId = attr.AttributeID })">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-danger" href="@Url.Action("DeleteAttribute", "Product", new { id = Model.Product.ProductID, attributeId = attr.AttributeID })">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td>Màu sắc</td>
-                                <td>Đỏ</td>
-                                <td class="text-center">@i</td>
-                                <td class="text-center text-nowrap">
-                                    <a class="btn btn-sm btn-primary" href="~/Product/EditAttribute/123?attributeId=456">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a class="btn btn-sm btn-danger" href="~/Product/DeleteAttribute/123?attributeId=456">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
+                                <td colspan="4" class="text-center text-muted">Chưa có thuộc tính nào. <a href="@Url.Action("CreateAttribute", "Product", new { id = Model.Product.ProductID })">Thêm thuộc tính</a></td>
                             </tr>
                         }
                     </tbody>
